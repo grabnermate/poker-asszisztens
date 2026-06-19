@@ -2,309 +2,221 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f0f13">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#0a0a10">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Póker">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<title>♠ Póker Segéd</title>
+<title>♠ Póker Segéd v3</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f0f13;
-  --s1:#1a1a24;
-  --s2:#22222e;
-  --border:#2a2a3a;
-  --accent:#4ade80;
-  --warn:#f59e0b;
-  --danger:#ef4444;
-  --text:#eeeeee;
-  --muted:#666;
-  --card:#f5f0e8;
-  --red:#dc2626;
+  --bg:#09090f;--s1:#111118;--s2:#17171f;--border:#222230;
+  --acc:#4ade80;--warn:#fbbf24;--err:#f87171;--blue:#60adf0;
+  --txt:#e0e0f0;--mut:#484868;--card:#f2ede2;--red:#e02020
 }
-html,body{height:100%;}
-body{
-  background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-  font-size:14px;-webkit-tap-highlight-color:transparent;
-  min-height:100vh;
-}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,system-ui,Arial,sans-serif;font-size:14px;-webkit-tap-highlight-color:transparent;padding-bottom:30px}
 
-/* ── HEADER ─────────────────────────────── */
-#hdr{
-  position:sticky;top:0;z-index:50;
-  background:var(--s1);border-bottom:1px solid var(--border);
-  padding:9px 14px;display:flex;align-items:center;gap:8px;
-}
-#hdr h1{font-size:1.05rem;font-weight:700;flex:1;}
-.badge{
-  border-radius:20px;padding:4px 10px;
-  font-size:.68rem;font-weight:800;letter-spacing:.8px;
-}
-#deck-badge{background:var(--s2);border:1px solid var(--border);color:var(--accent);}
-#phase-badge{background:var(--accent);color:#000;}
+/* HEADER */
+#hdr{position:sticky;top:0;z-index:100;background:var(--s1);border-bottom:1px solid var(--border);padding:9px 12px;display:flex;align-items:center;gap:7px}
+#hdr-title{font-size:1rem;font-weight:800;flex:1;letter-spacing:-.2px}
+.badge{border-radius:20px;padding:3px 9px;font-size:.62rem;font-weight:800;letter-spacing:.6px}
+#deck-badge{background:var(--s2);border:1px solid var(--border);color:var(--acc)}
+#phase-badge{background:var(--acc);color:#000;min-width:72px;text-align:center}
+#val-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;background:var(--s2);border:1px solid var(--border);flex-shrink:0}
 
-/* ── SECTIONS ────────────────────────────── */
-.sec{padding:11px 14px;border-bottom:1px solid var(--border);}
-.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
-.sec-title{font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;}
+/* BUTTONS */
+.act-row{display:flex;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border)}
+.btn{flex:1;padding:11px 6px;border:none;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:opacity .1s}
+.btn:active{opacity:.6}
+.btn-hand{background:#1c2b1c;color:var(--acc);border:1px solid #2a3f2a}
+.btn-deck{background:#2a1818;color:var(--err);border:1px solid #3f2222}
 
-/* ── BUTTONS ─────────────────────────────── */
-.act-row{display:flex;gap:8px;padding:9px 14px;border-bottom:1px solid var(--border);}
-.btn{
-  flex:1;padding:10px 8px;border:none;border-radius:8px;
-  font-size:.8rem;font-weight:700;cursor:pointer;letter-spacing:.4px;
-  transition:opacity .12s;
-}
-.btn:active{opacity:.65;}
-.btn-sec{background:var(--s2);color:var(--text);border:1px solid var(--border);}
-.btn-danger{background:#3a1010;color:var(--danger);border:1px solid #5a1a1a;}
+/* SECTIONS */
+.sec{padding:10px 12px;border-bottom:1px solid var(--border)}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sec-t{font-size:.58rem;text-transform:uppercase;letter-spacing:1.6px;color:var(--mut);font-weight:700}
 
-/* ── CARD SLOTS ──────────────────────────── */
-.cards-row{display:flex;gap:7px;align-items:flex-end;}
-.cs{
-  width:54px;height:76px;
-  background:var(--s2);border:2px dashed var(--border);
-  border-radius:8px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;cursor:pointer;
-  color:#3a3a50;transition:transform .1s;flex-shrink:0;
-  user-select:none;position:relative;
-}
-.cs:active{transform:scale(.92);}
-.cs.on{background:var(--card);border:2px solid transparent;box-shadow:0 2px 10px rgba(0,0,0,.5);}
-.cs.on .cr{font-size:1.1rem;font-weight:900;color:#111;line-height:1.1;}
-.cs.on .cs2{font-size:1.35rem;line-height:1.05;}
-.cs.on.red .cr,.cs.on.red .cs2{color:var(--red);}
-.cs .plus{font-size:1.4rem;color:#2a2a3a;}
+/* CARD SLOT (my cards / board) */
+.cs{width:52px;height:74px;background:var(--s2);border:2px dashed var(--border);border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;user-select:none;-webkit-user-select:none;transition:transform .1s}
+.cs:active{transform:scale(.91)}
+.cs.on{background:var(--card);border:2px solid transparent;box-shadow:0 2px 12px rgba(0,0,0,.55)}
+.cs.on .cr{font-size:1.1rem;font-weight:900;color:#111;line-height:1.1}
+.cs.on .csu{font-size:1.4rem;line-height:1}
+.cs.on.red .cr,.cs.on.red .csu{color:var(--red)}
+.cs .plus{font-size:1.5rem;color:#1c1c2a}
+.cards-row{display:flex;gap:8px}
+.comm-wrap{display:flex;gap:10px;align-items:flex-end}
+.cg{display:flex;flex-direction:column;align-items:center;gap:3px}
+.cg-inner{display:flex;gap:7px}
+.cg-lbl{font-size:.53rem;color:#2a2a40;text-transform:uppercase;letter-spacing:1px}
 
-/* community layout */
-.comm-wrap{display:flex;gap:10px;align-items:flex-end;}
-.cg{display:flex;flex-direction:column;align-items:center;gap:4px;}
-.cg-inner{display:flex;gap:7px;}
-.cg-lbl{font-size:.58rem;color:#3a3a5a;text-transform:uppercase;letter-spacing:1px;}
+/* OPPONENTS */
+.opp-adj{display:flex;align-items:center;gap:8px}
+.opp-adj button{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--s2);color:var(--txt);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.opp-adj button:active{opacity:.6}
+.occ{font-size:1rem;font-weight:700;min-width:18px;text-align:center}
+#opp-list{display:flex;flex-direction:column;gap:5px;margin-top:7px}
+.opp-row{display:flex;align-items:center;gap:7px;background:var(--s2);border-radius:9px;padding:5px 9px}
+.opp-lbl{font-size:.65rem;color:var(--mut);min-width:52px}
+.opp-cards{display:flex;gap:4px}
+.ocs{width:41px;height:58px;background:var(--bg);border:1px dashed #1e1e30;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;user-select:none;-webkit-user-select:none}
+.ocs:active{transform:scale(.9)}
+.ocs.on{background:var(--card);border:none;box-shadow:0 1px 6px rgba(0,0,0,.45)}
+.ocs.on .cr{font-size:.86rem;font-weight:900;color:#111;line-height:1.1}
+.ocs.on .csu{font-size:1.05rem;line-height:1}
+.ocs.on.red .cr,.ocs.on.red .csu{color:var(--red)}
+.ocs .plus{font-size:.9rem;color:#1a1a28}
+.opp-clr{background:none;border:none;color:#222238;font-size:.85rem;cursor:pointer;padding:4px 8px;margin-left:auto}
+.opp-clr:active{color:var(--err)}
 
-/* ── OPPONENTS ───────────────────────────── */
-.opp-adj{display:flex;align-items:center;gap:9px;}
-.opp-adj button{
-  width:30px;height:30px;border-radius:50%;
-  border:1px solid var(--border);background:var(--s2);color:var(--text);
-  font-size:1.1rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-}
-.opp-adj button:active{background:var(--border);}
-.opp-adj .occ{font-size:1rem;font-weight:700;min-width:20px;text-align:center;}
-#opp-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
-.opp-row{
-  display:flex;align-items:center;gap:8px;
-  background:var(--s2);border-radius:8px;padding:6px 10px;
-}
-.opp-lbl{font-size:.72rem;color:var(--muted);min-width:58px;}
-.opp-cards{display:flex;gap:5px;}
-.ocs{
-  width:42px;height:58px;background:#0f0f1a;border:1px dashed #2a2a40;
-  border-radius:6px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;cursor:pointer;
-  color:#2a2a40;font-size:.7rem;flex-shrink:0;
-}
-.ocs:active{transform:scale(.9);}
-.ocs.on{background:var(--card);border:none;box-shadow:0 1px 5px rgba(0,0,0,.4);}
-.ocs.on .cr{font-size:.85rem;font-weight:900;color:#111;line-height:1.1;}
-.ocs.on .cs2{font-size:1rem;line-height:1.05;}
-.ocs.on.red .cr,.ocs.on.red .cs2{color:var(--red);}
-.opp-clr{background:none;border:none;color:#3a3a50;font-size:.9rem;cursor:pointer;padding:4px 8px;margin-left:auto;}
-.opp-clr:active{color:var(--danger);}
+/* RESULTS */
+#results-area{padding:11px 12px}
+.hand-box{background:var(--s1);border:1px solid var(--border);border-radius:11px;padding:12px 12px 10px;margin-bottom:9px;text-align:center}
+.hand-lbl{font-size:.52rem;letter-spacing:1.5px;color:var(--mut);text-transform:uppercase;margin-bottom:3px}
+.hand-name{font-size:1.45rem;font-weight:900;color:#f0cf55}
+.hand-sub{font-size:.68rem;color:var(--mut);margin-top:3px}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px}
+.stat-box{background:var(--s1);border:1px solid var(--border);border-radius:11px;padding:11px 8px;text-align:center}
+.sv{font-size:1.45rem;font-weight:900}
+.sl{font-size:.52rem;letter-spacing:1px;color:var(--mut);text-transform:uppercase;margin-top:2px}
+.vg{color:var(--acc)}.va{color:var(--warn)}.vr{color:var(--err)}.vb{color:var(--blue)}
+.win-box{background:var(--s1);border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:9px}
+.win-title{font-size:.52rem;letter-spacing:1.2px;color:var(--mut);text-transform:uppercase;margin-bottom:9px}
+.wbar-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.wbar-lbl{font-size:.6rem;color:var(--mut);width:52px;text-align:right;flex-shrink:0}
+.wbar-wrap{flex:1;background:var(--s2);border-radius:4px;height:8px;overflow:hidden}
+.wbar{height:100%;border-radius:4px;transition:width .4s}
+.wbar.g{background:var(--acc)}.wbar.a{background:var(--warn)}.wbar.r{background:var(--err)}
+.wbar-val{font-size:.68rem;font-weight:700;min-width:38px;flex-shrink:0}
+.wbar-val.g{color:var(--acc)}.wbar-val.a{color:var(--warn)}.wbar-val.r{color:var(--err)}
+.mc-note{font-size:.57rem;color:#2a2a40;margin-top:5px}
+.rec-box{border-radius:11px;padding:13px 14px 12px;margin-bottom:9px;border:2px solid transparent}
+.rec-box.raise{background:#0a1e0a;border-color:var(--acc)}
+.rec-box.call{background:#1e1806;border-color:var(--warn)}
+.rec-box.fold{background:#1e0808;border-color:var(--err)}
+.rec-top{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.rec-icon{font-size:1.6rem;line-height:1}
+.rec-label{font-size:1.4rem;font-weight:900;letter-spacing:.5px}
+.rec-label.raise{color:var(--acc)}.rec-label.call{color:var(--warn)}.rec-label.fold{color:var(--err)}
+.rec-reason{font-size:.76rem;color:#c0c0d8;line-height:1.5}
+.rec-extra{font-size:.58rem;color:#2a2a40;margin-top:5px}
 
-/* ── RESULTS ─────────────────────────────── */
-#results-area{padding:12px 14px;}
-.hand-box{
-  background:var(--s1);border-radius:10px;border:1px solid var(--border);
-  padding:13px;margin-bottom:10px;text-align:center;
-}
-.hand-lbl{font-size:.58rem;color:var(--muted);letter-spacing:1.5px;margin-bottom:3px;}
-.hand-name{font-size:1.45rem;font-weight:800;color:#f0d060;}
-.hand-sub{font-size:.72rem;color:var(--muted);margin-top:3px;}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-.stat-box{
-  background:var(--s1);border:1px solid var(--border);
-  border-radius:10px;padding:11px 8px;text-align:center;
-}
-.sv{font-size:1.45rem;font-weight:800;}
-.sl{font-size:.58rem;color:var(--muted);letter-spacing:1px;margin-top:2px;}
-.vg{color:var(--accent);}
-.va{color:var(--warn);}
-.vr{color:var(--danger);}
-.vb{color:#60c0f0;}
-.win-box{
-  background:var(--s1);border:1px solid var(--border);
-  border-radius:10px;padding:13px;margin-bottom:10px;
-}
-.win-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
-.win-pct{font-size:1.6rem;font-weight:800;}
-.win-meta{flex:1;}
-.win-title{font-size:.6rem;color:var(--muted);letter-spacing:1.2px;}
-.win-sub{font-size:.65rem;color:#4a4a6a;margin-top:2px;}
-.bar-wrap{background:var(--s2);border-radius:4px;height:7px;overflow:hidden;}
-.bar{height:100%;border-radius:4px;transition:width .4s ease;}
-.bar.g{background:var(--accent);}
-.bar.a{background:var(--warn);}
-.bar.r{background:var(--danger);}
-.win-detail{display:flex;justify-content:space-between;font-size:.62rem;color:#4a4a6a;margin-top:5px;}
+/* VALIDATION */
+#val-section{padding:10px 12px;border-bottom:1px solid var(--border)}
+.val-hd{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:1px 0}
+.val-left{display:flex;align-items:center;gap:8px}
+.val-title{font-size:.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);font-weight:700}
+.val-summary{font-size:.64rem;font-weight:600}
+.val-arrow{font-size:.6rem;color:var(--mut);transition:transform .2s}
+.val-arrow.open{transform:rotate(180deg)}
+#val-items{display:none;margin-top:8px;flex-direction:column;gap:3px}
+#val-items.show{display:flex}
+.vitem{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid #111118;font-size:.67rem;line-height:1.42}
+.vitem:last-child{border:none}
+.vi-icon{flex-shrink:0;font-size:.8rem;margin-top:1px}
+.vitem.ok .vi-icon{color:var(--acc)}.vitem.warn .vi-icon{color:var(--warn)}.vitem.err .vi-icon{color:var(--err)}
+.vitem.ok .vi-txt{color:#909090}.vitem.warn .vi-txt{color:var(--txt)}.vitem.err .vi-txt{color:var(--txt)}
 
-/* ── RECOMMENDATION BOX ─────────────────── */
-.rec-box{
-  border-radius:12px;padding:14px 14px 12px;margin-bottom:10px;
-  border:2px solid transparent;
-}
-.rec-box.raise{background:#0d2a0d;border-color:#22c55e;}
-.rec-box.call {background:#2a220a;border-color:#f59e0b;}
-.rec-box.fold {background:#2a0d0d;border-color:#ef4444;}
-.rec-action{
-  font-size:1.5rem;font-weight:900;letter-spacing:1px;
-  display:flex;align-items:center;gap:8px;margin-bottom:6px;
-}
-.rec-action.raise{color:#4ade80;}
-.rec-action.call {color:#fbbf24;}
-.rec-action.fold {color:#f87171;}
-.rec-dot{font-size:1.2rem;}
-.rec-reason{font-size:.78rem;color:#aaa;line-height:1.45;}
+/* DECK TRACKER */
+#deck-section{padding:10px 12px;border-bottom:1px solid var(--border)}
+.deck-hd{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:1px 0}
+.deck-hd span:first-child{font-size:.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);font-weight:700}
+.deck-arrow{font-size:.6rem;color:var(--mut);transition:transform .2s}
+.deck-arrow.open{transform:rotate(180deg)}
+#deck-body{display:none;margin-top:9px}
+#deck-body.show{display:block}
+.deck-legend{display:flex;gap:13px;margin-bottom:7px;font-size:.57rem;color:var(--mut);flex-wrap:wrap}
+.dl-item{display:flex;align-items:center;gap:4px}
+.dl-dot{width:9px;height:9px;border-radius:2px}
+.dgrid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;margin-bottom:4px}
+.dc{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.44rem;font-weight:800}
+.dc.av.s,.dc.av.c{background:#151520;color:#5050a0}
+.dc.av.h,.dc.av.d{background:#201515;color:#d04040}
+.dc.cur{background:#202008;color:#c0a020;outline:1px solid #403820}
+.dc.perm{background:#0d0d0f;color:#1a1a20}
+.deck-suits{display:flex;gap:4px;font-size:.6rem;color:var(--mut);justify-content:space-around;margin-top:4px}
 
-/* ── DECK TRACKER ────────────────────────── */
-#deck-sec{padding:10px 14px;border-bottom:1px solid var(--border);}
-#deck-toggle{
-  display:flex;align-items:center;justify-content:space-between;
-  cursor:pointer;padding:2px 0;
-}
-#deck-toggle span{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;}
-#deck-toggle .arrow{font-size:.7rem;color:var(--muted);transition:transform .2s;}
-#deck-toggle.open .arrow{transform:rotate(180deg);}
-#deck-grid-wrap{display:none;margin-top:9px;}
-#deck-grid-wrap.show{display:block;}
-.dgrid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;}
-.dc{
-  aspect-ratio:1;border-radius:3px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:.5rem;font-weight:700;background:#1e1e2a;
-}
-.dc.used{background:#111118;color:#252530;}
-.dc.s{color:#aaaacc;}
-.dc.h{color:#f55;}
-.dc.d{color:#f77;}
-.dc.c{color:#aaaacc;}
+/* INFO BAR */
+#info{padding:9px 12px;font-size:.68rem;color:#282840;text-align:center}
 
-/* ── INFO BAR ────────────────────────────── */
-#info-bar{
-  padding:8px 14px;font-size:.7rem;
-  color:#3a3a5a;text-align:center;
-  border-top:1px solid var(--border);
-}
+/* MODAL */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500}
+#overlay.show{display:flex;align-items:flex-end;justify-content:center}
+.modal{background:var(--s1);border-radius:18px 18px 0 0;border-top:1px solid var(--border);padding:16px 13px 34px;width:100%;max-width:440px;max-height:88vh;overflow-y:auto}
+.modal-title{font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);text-align:center;margin-bottom:12px;font-weight:700}
+.suit-tabs{display:flex;gap:7px;margin-bottom:12px}
+.stab{flex:1;padding:12px 4px;border:2px solid var(--border);border-radius:9px;background:var(--s2);color:var(--txt);font-size:1.35rem;cursor:pointer;text-align:center}
+.stab:active{transform:scale(.93)}
+.stab.on{border-color:#c8b030;background:#202008}
+.stab.red{color:var(--red)}
+.rank-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.rbtn{padding:14px 4px;border:1px solid var(--border);border-radius:9px;background:var(--s2);color:var(--txt);font-size:1rem;font-weight:700;cursor:pointer;text-align:center}
+.rbtn:active{transform:scale(.93)}
+.rbtn.used{opacity:.13;pointer-events:none}
+.rbtn.perm-used{opacity:.2;pointer-events:none;text-decoration:line-through}
+.rbtn.red{color:var(--red)}
+.modal-footer{display:flex;gap:8px}
+.mdel{flex:1;padding:13px;background:#2a1010;border:1px solid #4a1818;color:var(--err);border-radius:9px;font-size:.9rem;font-weight:700;cursor:pointer}
+.mcan{flex:1;padding:13px;background:var(--s2);border:1px solid var(--border);color:var(--txt);border-radius:9px;font-size:.9rem;font-weight:700;cursor:pointer}
+.mdel:active,.mcan:active{opacity:.65}
 
-/* ── MODAL ───────────────────────────────── */
-#overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.88);z-index:200;
-}
-#overlay.show{display:flex;align-items:flex-end;justify-content:center;}
-.modal{
-  background:var(--s1);border-radius:18px 18px 0 0;
-  border-top:1px solid var(--border);
-  padding:16px 14px 32px;
-  width:100%;max-width:440px;
-  max-height:85vh;overflow-y:auto;
-}
-.modal-title{
-  font-size:.75rem;color:var(--muted);letter-spacing:1.5px;
-  text-align:center;text-transform:uppercase;margin-bottom:12px;
-}
-.suit-tabs{display:flex;gap:7px;margin-bottom:12px;}
-.stab{
-  flex:1;padding:11px 4px;
-  border:2px solid var(--border);border-radius:8px;
-  background:var(--s2);color:var(--text);
-  font-size:1.3rem;cursor:pointer;text-align:center;
-}
-.stab:active{transform:scale(.95);}
-.stab.on{border-color:#f0d060;background:#24240e;}
-.stab.red{color:var(--red);}
-.rg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px;}
-.rbtn{
-  padding:14px 4px;border:1px solid var(--border);border-radius:8px;
-  background:var(--s2);color:var(--text);
-  font-size:1rem;font-weight:700;cursor:pointer;text-align:center;
-}
-.rbtn:active{background:var(--border);}
-.rbtn.used{opacity:.18;pointer-events:none;}
-.rbtn.red{color:var(--red);}
-.modal-acts{display:flex;gap:8px;}
-.mdel{flex:1;padding:13px;background:#3a1010;border:1px solid #5a1a1a;color:var(--danger);border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer;}
-.mcan{flex:1;padding:13px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer;}
-.mdel:active,.mcan:active{opacity:.7;}
-
-/* ── SPINNER ─────────────────────────────── */
-.spin{
-  display:inline-block;width:13px;height:13px;
-  border:2px solid var(--border);border-top-color:var(--accent);
-  border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;
-}
-@keyframes sp{to{transform:rotate(360deg);}}
-
-/* ── MISC ────────────────────────────────── */
-.hint-box{padding:14px;text-align:center;color:#3a3a5a;font-size:.82rem;}
+/* MISC */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--acc);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+.hint{padding:18px 12px;text-align:center;color:var(--mut);font-size:.8rem;line-height:1.5}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div id="hdr">
-  <h1>♠ Póker Segéd</h1>
+  <span id="hdr-title">♠ Póker Segéd</span>
   <span class="badge" id="deck-badge">52 lap</span>
   <span class="badge" id="phase-badge">PRE-FLOP</span>
+  <span id="val-dot" title="Validáció státusz">·</span>
 </div>
 
-<!-- ACTION BUTTONS -->
 <div class="act-row">
-  <button class="btn btn-sec" onclick="newDeal()">↺ Új leosztás</button>
-  <button class="btn btn-danger" onclick="newDeck()">⊘ Új pakli</button>
+  <button class="btn btn-hand" onclick="doNewHand()">↺ Új leosztás</button>
+  <button class="btn btn-deck" onclick="doNewDeck()">⊘ Új pakli</button>
 </div>
 
-<!-- MY CARDS -->
 <div class="sec">
-  <div class="sec-title">Saját lapjaim</div>
-  <div class="cards-row">
-    <div class="cs" id="my0" onclick="openP('my',0)"><span class="plus">+</span></div>
-    <div class="cs" id="my1" onclick="openP('my',1)"><span class="plus">+</span></div>
+  <div class="sec-t">Saját lapjaim</div>
+  <div class="cards-row" style="margin-top:9px">
+    <div class="cs" id="my0" onclick="openPicker('my',0)"><span class="plus">+</span></div>
+    <div class="cs" id="my1" onclick="openPicker('my',1)"><span class="plus">+</span></div>
   </div>
 </div>
 
-<!-- COMMUNITY CARDS -->
 <div class="sec">
-  <div class="sec-title">Közös lapok (Board)</div>
-  <div class="comm-wrap">
+  <div class="sec-t">Közös lapok (Board)</div>
+  <div class="comm-wrap" style="margin-top:9px">
     <div class="cg">
       <div class="cg-inner">
-        <div class="cs" id="cm0" onclick="openP('cm',0)"><span class="plus">+</span></div>
-        <div class="cs" id="cm1" onclick="openP('cm',1)"><span class="plus">+</span></div>
-        <div class="cs" id="cm2" onclick="openP('cm',2)"><span class="plus">+</span></div>
+        <div class="cs" id="cm0" onclick="openPicker('cm',0)"><span class="plus">+</span></div>
+        <div class="cs" id="cm1" onclick="openPicker('cm',1)"><span class="plus">+</span></div>
+        <div class="cs" id="cm2" onclick="openPicker('cm',2)"><span class="plus">+</span></div>
       </div>
       <span class="cg-lbl">Flop</span>
     </div>
     <div class="cg">
-      <div class="cs" id="cm3" onclick="openP('cm',3)"><span class="plus">+</span></div>
+      <div class="cs" id="cm3" onclick="openPicker('cm',3)"><span class="plus">+</span></div>
       <span class="cg-lbl">Turn</span>
     </div>
     <div class="cg">
-      <div class="cs" id="cm4" onclick="openP('cm',4)"><span class="plus">+</span></div>
+      <div class="cs" id="cm4" onclick="openPicker('cm',4)"><span class="plus">+</span></div>
       <span class="cg-lbl">River</span>
     </div>
   </div>
 </div>
 
-<!-- OPPONENTS -->
 <div class="sec">
   <div class="sec-hd">
-    <div class="sec-title">Ellenfelek</div>
+    <div class="sec-t">Ellenfelek</div>
     <div class="opp-adj">
       <button onclick="adjOpp(-1)">−</button>
       <span class="occ" id="occ">2</span>
@@ -314,36 +226,51 @@ body{
   <div id="opp-list"></div>
 </div>
 
-<!-- RESULTS -->
 <div id="results-area"></div>
 
-<!-- DECK TRACKER -->
-<div id="deck-sec">
-  <div id="deck-toggle" onclick="toggleDeck()">
-    <span>Pakli állapota</span>
-    <span class="arrow">▼</span>
+<div id="val-section" style="display:none">
+  <div class="val-hd" onclick="toggleVal()">
+    <div class="val-left">
+      <span class="val-title">Önellenőrzés</span>
+      <span class="val-summary" id="val-sum"></span>
+    </div>
+    <span class="val-arrow" id="val-arrow">▼</span>
   </div>
-  <div id="deck-grid-wrap">
+  <div id="val-items"></div>
+</div>
+
+<div id="deck-section">
+  <div class="deck-hd" onclick="toggleDeck()">
+    <span>Pakli állapota</span>
+    <span class="deck-arrow" id="deck-arrow">▼</span>
+  </div>
+  <div id="deck-body">
+    <div class="deck-legend">
+      <div class="dl-item"><div class="dl-dot" style="background:#151520;border:1px solid #2a2a50"></div>Elérhető</div>
+      <div class="dl-item"><div class="dl-dot" style="background:#202008;outline:1px solid #403820"></div>Jelenlegi kéz</div>
+      <div class="dl-item"><div class="dl-dot" style="background:#0d0d0f;border:1px solid #151516"></div>Korábbi kézből</div>
+    </div>
     <div class="dgrid" id="dgrid"></div>
+    <div class="deck-suits" id="deck-suits-info"></div>
   </div>
 </div>
 
-<div id="info-bar">Add meg mindkét saját lapodat az elemzés megkezdéséhez.</div>
+<div id="info">Add meg a lapokat az elemzéshez.</div>
 
 <!-- CARD PICKER MODAL -->
-<div id="overlay">
-  <div class="modal">
+<div id="overlay" onclick="overlayClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-title">Válassz lapot</div>
     <div class="suit-tabs">
-      <button class="stab on"  id="st0" onclick="pSuit('♠',0)">♠</button>
-      <button class="stab red" id="st1" onclick="pSuit('♥',1)">♥</button>
-      <button class="stab red" id="st2" onclick="pSuit('♦',2)">♦</button>
-      <button class="stab"     id="st3" onclick="pSuit('♣',3)">♣</button>
+      <button class="stab on"  id="st0" onclick="setSuit('♠',0)">♠</button>
+      <button class="stab red" id="st1" onclick="setSuit('♥',1)">♥</button>
+      <button class="stab red" id="st2" onclick="setSuit('♦',2)">♦</button>
+      <button class="stab"     id="st3" onclick="setSuit('♣',3)">♣</button>
     </div>
-    <div class="rg" id="rg"></div>
-    <div class="modal-acts">
-      <button class="mdel" onclick="delCard()">🗑 Törlés</button>
-      <button class="mcan" onclick="closeP()">Mégse</button>
+    <div class="rank-grid" id="rank-grid"></div>
+    <div class="modal-footer">
+      <button class="mdel" onclick="deleteCard()">🗑 Törlés</button>
+      <button class="mcan" onclick="closePicker()">Mégse</button>
     </div>
   </div>
 </div>
@@ -351,645 +278,665 @@ body{
 <script>
 'use strict';
 
-/* ═══════════════════════════════════════════
-   CONSTANTS
-═══════════════════════════════════════════ */
-const RANKS  = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-const SUITS  = ['♠','♥','♦','♣'];
-const RED    = new Set(['♥','♦']);
-const SUIT_C = {'♠':'s','♥':'h','♦':'d','♣':'c'};
-const RV     = Object.fromEntries(RANKS.map((r,i)=>[r,i+2]));
-const RN     = {2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K',14:'A'};
+/* ═══════════════════════ CONSTANTS ═══════════════════════ */
+const RANKS    = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const SUITS    = ['♠','♥','♦','♣'];
+const RED      = new Set(['♥','♦']);
+const RV       = Object.fromEntries(RANKS.map((r,i) => [r, i+2]));
+const ALL_CARDS = SUITS.flatMap(s => RANKS.map(r => ({rank:r, suit:s})));
 
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
-let myC  = [null,null];                           // hole cards
-let cmC  = [null,null,null,null,null];             // community
-let numO = 2;                                      // opponent count
-let oppC = [[null,null],[null,null]];              // opponent cards
-let pk   = {type:null,idx:null,suit:'♠'};         // picker state
-let mcT  = null;                                   // MC timer
+/* ═══════════════════════ STATE ═══════════════════════════ */
+let permSet  = new Set(); // card keys archived from previous hands
+let holeC    = [null, null];
+let commC    = [null, null, null, null, null];
+let numOpp   = 2;
+let oppC     = [[null,null], [null,null]];
+let picker   = {type:null, idx:null, suit:'♠'};
+let mcTimer  = null;
+let valOpen  = false;
+let deckOpen = false;
 
-/* ═══════════════════════════════════════════
-   DECK HELPERS
-═══════════════════════════════════════════ */
-function cKey(c){ return c ? c.suit+c.rank : null; }
+/* ═══════════════════════ DECK HELPERS ═══════════════════ */
+function cKey(c) { return c ? c.suit + c.rank : null; }
 
-function allUsed(){
-  return [...myC,...cmC,...oppC.flat()].filter(Boolean);
+function currentCards() {
+  return [...holeC, ...commC, ...oppC.flat()].filter(Boolean);
 }
 
-function getDeck(excl){
-  const ex = new Set(excl.map(cKey));
-  const d = [];
-  for(const suit of SUITS) for(const rank of RANKS)
-    if(!ex.has(suit+rank)) d.push({rank,suit});
-  return d;
+function allKnownSet() {
+  const s = new Set(permSet);
+  currentCards().forEach(c => s.add(cKey(c)));
+  return s;
 }
 
-function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
-    const j=(Math.random()*(i+1))|0;
-    [a[i],a[j]]=[a[j],a[i]];
+function availDeck() {
+  const k = allKnownSet();
+  return ALL_CARDS.filter(c => !k.has(cKey(c)));
+}
+
+function deckCount() { return 52 - allKnownSet().size; }
+
+function getPhaseLabel() {
+  const comm = commC.filter(Boolean);
+  if (comm.length === 0) return 'PRE-FLOP';
+  if (comm.length <= 3) return 'FLOP';
+  if (comm.length === 4) return 'TURN';
+  return 'RIVER';
+}
+
+/* ═══════════════════════ SHUFFLE ════════════════════════ */
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
 
-/* ═══════════════════════════════════════════
-   HAND EVALUATOR
-═══════════════════════════════════════════ */
-function eval5(h){
-  // h = 5 cards [{rank,suit}]
-  const vals = h.map(c=>RV[c.rank]).sort((a,b)=>b-a);
-  const suits = h.map(c=>c.suit);
-  const flush = suits.every(s=>s===suits[0]);
-
-  // straight
-  const uv=[...new Set(vals)].sort((a,b)=>b-a);
-  let str=false,sHi=0;
-  if(uv.length>=5){
-    for(let i=0;i<=uv.length-5;i++){
-      if(uv[i]-uv[i+4]===4 && new Set(uv.slice(i,i+5)).size===5){
-        str=true;sHi=uv[i];break;
+/* ═══════════════════════ HAND EVALUATOR ════════════════ */
+function eval5(h) {
+  const vals  = h.map(c => RV[c.rank]).sort((a,b) => b-a);
+  const suits = h.map(c => c.suit);
+  const flush = suits.every(s => s === suits[0]);
+  const uv    = [...new Set(vals)].sort((a,b) => b-a);
+  let str = false, sHi = 0;
+  if (uv.length >= 5) {
+    for (let i = 0; i <= uv.length - 5; i++) {
+      if (uv[i] - uv[i+4] === 4 && new Set(uv.slice(i,i+5)).size === 5) {
+        str = true; sHi = uv[i]; break;
       }
     }
-    if(!str&&uv.includes(14)&&[2,3,4,5].every(v=>uv.includes(v))){str=true;sHi=5;}
+    if (!str && uv.includes(14) && [2,3,4,5].every(v => uv.includes(v))) {
+      str = true; sHi = 5;
+    }
   }
-
-  // counts
-  const cnt={};
-  vals.forEach(v=>cnt[v]=(cnt[v]||0)+1);
-  const g=Object.entries(cnt).map(([v,c])=>({v:+v,c})).sort((a,b)=>b.c-a.c||b.v-a.v);
-  const tb=[g[0]?.v||0,g[1]?.v||0,g[2]?.v||0,...vals];
-
-  if(flush&&str) return{r:8,n:sHi===14?'Royal Flush':'Straight Flush',tb:[sHi,...vals]};
-  if(g[0].c===4) return{r:7,n:'Négyes (Poker)',tb};
-  if(g[0].c===3&&g[1]?.c===2) return{r:6,n:'Full House',tb};
-  if(flush)      return{r:5,n:'Flush (Szín)',tb:vals};
-  if(str)        return{r:4,n:'Sor (Straight)',tb:[sHi,...vals]};
-  if(g[0].c===3) return{r:3,n:'Drill (Hármas)',tb};
-  if(g[0].c===2&&g[1]?.c===2) return{r:2,n:'Két pár',tb};
-  if(g[0].c===2) return{r:1,n:'Pár',tb};
-  return           {r:0,n:'Legerősebb lap',tb:vals};
+  const cnt = {};
+  vals.forEach(v => cnt[v] = (cnt[v] || 0) + 1);
+  const g = Object.entries(cnt).map(([v,c]) => ({v:+v, c})).sort((a,b) => b.c - a.c || b.v - a.v);
+  const tb = [g[0]?.v||0, g[1]?.v||0, g[2]?.v||0, ...vals];
+  if (flush && str) return {r:8, n: sHi===14 ? 'Royal Flush' : 'Straight Flush', tb:[sHi,...vals]};
+  if (g[0].c === 4) return {r:7, n:'Négyes (Poker)', tb};
+  if (g[0].c === 3 && g[1]?.c === 2) return {r:6, n:'Full House', tb};
+  if (flush)        return {r:5, n:'Flush (Szín)', tb:vals};
+  if (str)          return {r:4, n:'Sor (Straight)', tb:[sHi,...vals]};
+  if (g[0].c === 3) return {r:3, n:'Drill (Hármas)', tb};
+  if (g[0].c === 2 && g[1]?.c === 2) return {r:2, n:'Két pár', tb};
+  if (g[0].c === 2) return {r:1, n:'Pár', tb};
+  return              {r:0, n:'Legerősebb lap', tb:vals};
 }
 
-function cmpH(a,b){
-  if(a.r!==b.r) return a.r-b.r;
-  for(let i=0;i<Math.max(a.tb.length,b.tb.length);i++){
-    const d=(a.tb[i]||0)-(b.tb[i]||0);
-    if(d) return d;
+function cmpH(a, b) {
+  if (a.r !== b.r) return a.r - b.r;
+  for (let i = 0; i < Math.max(a.tb.length, b.tb.length); i++) {
+    const d = (a.tb[i]||0) - (b.tb[i]||0);
+    if (d) return d;
   }
   return 0;
 }
 
-function bestFrom(cards){
-  const n=cards.length;
-  if(n<5) return null;
-  if(n===5) return eval5(cards);
-  let best=null;
-  function pick(s,ch){
-    if(ch.length===5){
-      const h=eval5(ch);
-      if(!best||cmpH(h,best)>0) best=h;
+function bestFrom(cards) {
+  const n = cards.length;
+  if (n < 5) return null;
+  if (n === 5) return eval5(cards);
+  let best = null;
+  function pick(s, ch) {
+    if (ch.length === 5) {
+      const h = eval5(ch);
+      if (!best || cmpH(h, best) > 0) best = h;
       return;
     }
-    const need=5-ch.length;
-    if(n-s<need) return;
-    for(let i=s;i<n;i++) pick(i+1,[...ch,cards[i]]);
+    if (n - s < 5 - ch.length) return;
+    for (let i = s; i < n; i++) pick(i+1, [...ch, cards[i]]);
   }
-  pick(0,[]);
+  pick(0, []);
   return best;
 }
 
-/* ═══════════════════════════════════════════
-   OUTS CALCULATOR
-═══════════════════════════════════════════ */
-function calcOuts(hole,comm){
-  const all=[...hole,...comm];
-  const curr=bestFrom(all);
-  if(!curr) return null;
-  const toCome=5-comm.length;
-  if(toCome<=0) return{outs:0,pct:'—',toCome:0};
-
-  const knownOpp=oppC.flat().filter(Boolean);
-  const deck=getDeck([...all,...knownOpp]);
-  let outs=0;
-  for(const card of deck){
-    const test=bestFrom([...all,card]);
-    // Only count RANK improvements, not kicker improvements
-    if(test&&test.r>curr.r) outs++;
+/* ═══════════════════════ OUTS ══════════════════════════ */
+function calcOuts(hole, comm) {
+  const all  = [...hole, ...comm];
+  const curr = bestFrom(all);
+  if (!curr) return null;
+  const toCome = 5 - comm.length;
+  if (toCome <= 0) return {outs:0, pct:'—', toCome:0, rem:0};
+  const deck = availDeck();
+  let outs = 0;
+  for (const card of deck) {
+    const test = bestFrom([...all, card]);
+    if (test && test.r > curr.r) outs++;
   }
-  const rem=deck.length;
+  const rem = deck.length;
   let pct;
-  if(toCome>=2){
-    // P(improve in at least one of next 2 draws)
-    const m1=(rem-outs)/rem;
-    const m2=rem>1?(rem-outs-1)/(rem-1):0;
-    pct=((1-m1*m2)*100).toFixed(1);
+  if (toCome >= 2) {
+    const m1 = rem > 0 ? (rem - outs) / rem : 1;
+    const m2 = rem > 1 ? (rem - outs - 1) / (rem - 1) : 1;
+    pct = ((1 - m1 * m2) * 100).toFixed(1);
   } else {
-    pct=(outs/rem*100).toFixed(1);
+    pct = rem > 0 ? (outs / rem * 100).toFixed(1) : '0.0';
   }
-  return{outs,pct,toCome,rem};
+  return {outs, pct, toCome, rem};
 }
 
-/* ═══════════════════════════════════════════
-   MONTE CARLO WIN PROBABILITY
-═══════════════════════════════════════════ */
-function monteCarlo(hole,comm,N=3000){
-  const knownOpp=oppC.flat().filter(Boolean);
-  const allKnown=[...hole,...comm,...knownOpp];
-  const deckBase=getDeck(allKnown);
-  const commNeed=5-comm.length;
+/* ═══════════════════════ MONTE CARLO ═══════════════════ */
+function runMC(hole, comm, N) {
+  const knownOppFlat = oppC.flat().filter(Boolean);
+  const allCurKeys   = new Set([...hole, ...comm, ...knownOppFlat].map(cKey));
+  const pool = availDeck().filter(c => !allCurKeys.has(cKey(c)));
+  const commNeed  = 5 - comm.length;
+  const oppNeeds  = oppC.map(oc => 2 - oc.filter(Boolean).length);
+  const totalNeed = commNeed + oppNeeds.reduce((s,v) => s+v, 0);
+  if (pool.length < totalNeed) return null;
 
-  // Per opponent: how many cards still to deal
-  const oppNeeds=oppC.map(oc=>2-oc.filter(Boolean).length);
-  const totalOppDeal=oppNeeds.reduce((s,v)=>s+v,0);
+  let wins = 0, ties = 0;
+  const arr = [...pool];
 
-  // Safety check
-  if(deckBase.length < commNeed+totalOppDeal) return null;
-
-  let wins=0,ties=0;
-  const deck=[...deckBase];
-
-  for(let i=0;i<N;i++){
-    shuffle(deck);
-    let idx=0;
-
-    // Fill community
-    const simComm=[...comm];
-    for(let j=0;j<commNeed;j++) simComm.push(deck[idx++]);
-
-    // Fill opponent holes
-    const simOpp=oppC.map((oc,oi)=>{
-      const filled=oc.filter(Boolean).slice();
-      const need=oppNeeds[oi];
-      for(let j=0;j<need;j++) filled.push(deck[idx++]);
-      return filled;
+  for (let i = 0; i < N; i++) {
+    shuffle(arr);
+    let idx = 0;
+    const simComm = [...comm];
+    for (let j = 0; j < commNeed; j++) simComm.push(arr[idx++]);
+    const simOpp = oppC.map(oc => {
+      const f = oc.filter(Boolean).slice();
+      for (let j = f.length; j < 2; j++) f.push(arr[idx++]);
+      return f;
     });
-
-    // Evaluate my hand
-    const myH=bestFrom([...hole,...simComm]);
-    if(!myH) continue;
-
-    // Compare vs all opponents
-    let iWin=true,isTie=false;
-    for(const opp of simOpp){
-      if(opp.length<2) continue;
-      const oH=bestFrom([...opp,...simComm]);
-      if(!oH) continue;
-      const c=cmpH(myH,oH);
-      if(c<0){iWin=false;break;}
-      if(c===0) isTie=true;
+    const myH = bestFrom([...hole, ...simComm]);
+    if (!myH) continue;
+    let iWin = true, isTie = false;
+    for (const opp of simOpp) {
+      if (opp.length < 2) continue;
+      const oH = bestFrom([...opp, ...simComm]);
+      if (!oH) continue;
+      const c = cmpH(myH, oH);
+      if (c < 0) { iWin = false; break; }
+      if (c === 0) isTie = true;
     }
-    if(iWin){
-      if(isTie) ties++;
-      else wins++;
-    }
+    if (iWin) { isTie ? ties++ : wins++; }
   }
-  return{
-    win:(wins/N*100).toFixed(1),
-    tie:(ties/N*100).toFixed(1),
-    lose:((N-wins-ties)/N*100).toFixed(1),
+  return {
+    win:  +(wins / N * 100).toFixed(1),
+    tie:  +(ties / N * 100).toFixed(1),
+    lose: +((N - wins - ties) / N * 100).toFixed(1),
     N
   };
 }
 
-/* ═══════════════════════════════════════════
-   RENDER HELPERS
-═══════════════════════════════════════════ */
-function renderSlot(el,card,small=false){
-  if(!card){
-    el.innerHTML=`<span class="plus">${small?'?':'+'}</span>`;
-    el.classList.remove('on','red');
-    return;
+function monteCarlo(hole, comm) {
+  const r1 = runMC(hole, comm, 1500);
+  if (!r1) return null;
+  const r2 = runMC(hole, comm, 1500);
+  if (!r2) return {r1, r2:null, fin:r1, uncertain:false, variance:0};
+  const diff    = Math.abs(r1.win - r2.win);
+  const winAvg  = +((r1.win  + r2.win)  / 2).toFixed(1);
+  const tieAvg  = +((r1.tie  + r2.tie)  / 2).toFixed(1);
+  const loseAvg = +(100 - winAvg - tieAvg).toFixed(1);
+  return {
+    r1, r2,
+    fin: {win:winAvg, tie:tieAvg, lose:loseAvg, N:3000},
+    uncertain: diff > 8,
+    variance:  +diff.toFixed(1)
+  };
+}
+
+/* ═══════════════════════ VALIDATION ════════════════════ */
+function runValidation(hole, comm, mcData, outsData, handResult) {
+  const checks = [];
+  const ad  = availDeck();
+  const cur = currentCards();
+  const uniq = new Set(cur.map(cKey));
+
+  // 1. Deck integrity
+  const hasDup  = uniq.size < cur.length;
+  const totalOK = uniq.size + ad.length + permSet.size <= 52;
+  if (!hasDup && totalOK) {
+    checks.push({t:'ok',  m:`Pakli integritás OK – ${ad.length} lap elérhető, ${permSet.size} lap korábbi kézből kivéve`});
+  } else {
+    if (hasDup)  checks.push({t:'err', m:'Duplikált lap detektálva!'});
+    if (!totalOK) checks.push({t:'err', m:`Pakli összeg hiba: ${uniq.size}+${ad.length}+${permSet.size}≠52`});
   }
-  const isRed=RED.has(card.suit);
-  el.innerHTML=`<span class="cr">${card.rank}</span><span class="cs2">${card.suit}</span>`;
-  el.classList.add('on');
-  el.classList.toggle('red',isRed);
-}
 
-function renderMyCards(){
-  for(let i=0;i<2;i++) renderSlot(document.getElementById('my'+i),myC[i]);
-}
-
-function renderComm(){
-  for(let i=0;i<5;i++) renderSlot(document.getElementById('cm'+i),cmC[i]);
-}
-
-function renderOpp(){
-  const list=document.getElementById('opp-list');
-  list.innerHTML='';
-  document.getElementById('occ').textContent=numO;
-  for(let i=0;i<numO;i++){
-    const row=document.createElement('div');
-    row.className='opp-row';
-
-    // Label
-    const lbl=document.createElement('span');
-    lbl.className='opp-lbl';
-    lbl.textContent=(i+1)+'. ellenfél';
-    row.appendChild(lbl);
-
-    // Cards
-    const cw=document.createElement('div');
-    cw.className='opp-cards';
-    for(let j=0;j<2;j++){
-      const slot=document.createElement('div');
-      slot.className='ocs';
-      const card=(oppC[i]||[])[j]||null;
-      if(card){
-        slot.innerHTML=`<span class="cr">${card.rank}</span><span class="cs2">${card.suit}</span>`;
-        slot.classList.add('on');
-        if(RED.has(card.suit)) slot.classList.add('red');
-      } else {
-        slot.textContent='?';
-      }
-      const ii=i,jj=j;
-      slot.onclick=()=>openP('opp',ii*2+jj);
-      cw.appendChild(slot);
+  // 2. Equity sanity (0–100%)
+  if (mcData) {
+    const w = mcData.fin.win;
+    if (w >= 0 && w <= 100) {
+      checks.push({t:'ok',   m:`Equity érvényes: ${w}% (0–100% tartomány)`});
+    } else {
+      checks.push({t:'err',  m:`Equity érvénytelen tartományban: ${w}%`});
     }
-    row.appendChild(cw);
+  }
 
-    // Clear btn
-    const clr=document.createElement('button');
-    clr.className='opp-clr';
-    clr.textContent='✕';
-    const ii=i;
-    clr.onclick=()=>{ oppC[ii]=[null,null]; refresh(); };
-    row.appendChild(clr);
+  // 3. MC variance (dupla futás összehasonlítása)
+  if (mcData && mcData.r2) {
+    const v = mcData.variance;
+    if (mcData.uncertain) {
+      checks.push({t:'warn', m:`MC variancia magas: ±${v}% eltérés (${mcData.r1.win}% vs ${mcData.r2.win}%) – bizonytalan becslés`});
+    } else {
+      checks.push({t:'ok',   m:`MC konzisztens: ±${v}% eltérés a két 1500 iterációs futás között`});
+    }
+  }
 
+  // 4. Hand-equity consistency
+  if (handResult && mcData) {
+    const w = mcData.fin.win;
+    const r = handResult.r;
+    let issue = '';
+    if (r >= 7 && w < 15)           issue = `Négyes/SF kéz de csak ${w}% equity (${numOpp} ellenfél)?`;
+    else if (r >= 6 && w < 10)      issue = `Full house de csak ${w}% equity – ellenőrizd az ellenfelek számát`;
+    else if (r >= 5 && w < 7)       issue = `Flush+ de csak ${w}% equity – valami nem stimmel`;
+    else if (r === 0 && w > 82 && numOpp >= 5) issue = `High card de ${w}% equity ${numOpp} ellen – gyanús`;
+    if (issue) {
+      checks.push({t:'warn', m:`Kéz-equity ellentmondás: ${issue}`});
+    } else {
+      checks.push({t:'ok',   m:`Kéz-equity konzisztens: ${handResult.n} → ${w}% nyerési esély`});
+    }
+  }
+
+  // 5. Outs vs MC cross-check
+  if (outsData && mcData && comm.length < 5 && outsData.toCome > 0) {
+    const mw = mcData.fin.win;
+    if (outsData.outs > 8 && mw < 12) {
+      checks.push({t:'warn', m:`Sok out (${outsData.outs} db) de alacsony equity (${mw}%) – a draw önmagában nem elég`});
+    } else if (outsData.outs === 0 && mw > 65) {
+      checks.push({t:'ok',   m:`Erős nyerő pozíció (${mw}%) – nincs szükség outokra`});
+    } else {
+      checks.push({t:'ok',   m:`Outak (${outsData.outs} db, ${outsData.pct}%) és MC equity (${mw}%) összhangban`});
+    }
+  }
+
+  return checks;
+}
+
+/* ═══════════════════════ RECOMMENDATION ═══════════════ */
+function getRecommendation(hr, win, outs, toCome, nP) {
+  const pAdj = Math.max(0, nP - 2) * 1.5;
+  const RT = 62 + pAdj, CT = 38 + pAdj;
+  const GD = toCome >= 2 ? 10 : 7;
+  const isMon = hr >= 7, isFl = hr >= 5, isSt = hr === 4;
+  const isTri = hr === 3, is2P = hr === 2, isPair = hr === 1, isHC = hr === 0;
+  const isGD = outs >= GD && toCome > 0;
+  const isMD = outs >= 5  && toCome > 0;
+
+  if (toCome === 0) {
+    if (isMon) return {cls:'raise', i:'🟢', l:'RAISE', r:'Kimagasló kéz – nyomj maximálisan.'};
+    if (isFl)  return {cls:'raise', i:'🟢', l:'RAISE', r:'Erős kész kéz – érdemes emelni.'};
+    if (isSt && win >= CT) return {cls:'raise', i:'🟢', l:'RAISE', r:'Sor – általában nyerő showdown kéz.'};
+    if (isTri && win >= RT) return {cls:'raise', i:'🟢', l:'RAISE', r:'Drill – értéket kinyerni.'};
+    if (win >= RT) return {cls:'raise', i:'🟢', l:'RAISE', r:`${win.toFixed(0)}% equity – statisztikailag előnyös.`};
+    if (is2P && win >= CT) return {cls:'call', i:'🟡', l:'CALL', r:'Két pár – közepes showdown kéz.'};
+    if (win >= CT) return {cls:'call', i:'🟡', l:'CALL', r:`${win.toFixed(0)}% – megfontolt folytatás.`};
+    return {cls:'fold', i:'🔴', l:'FOLD', r:`${win.toFixed(0)}% – nem éri meg belemenni.`};
+  }
+  if (isMon) return {cls:'raise', i:'🟢', l:'RAISE', r:'Kimagasló kéz – védd draw ellen is.'};
+  if (isFl)  return {cls:'raise', i:'🟢', l:'RAISE', r:'Erős kész kéz (Flush+) – agresszív játék.'};
+  if (isSt && win >= CT) return {cls:'raise', i:'🟢', l:'RAISE', r:'Sor – figyelj flush boardra.'};
+  if (isSt) return {cls:'call', i:'🟡', l:'CALL', r:'Sor – sok ellenfél csökkenti értékét.'};
+  if (isTri && win >= CT) return {cls:'raise', i:'🟢', l:'RAISE', r:'Drill – jó eséllyel nyerő kéz.'};
+  if (is2P && isGD) return {cls:'raise', i:'🟢', l:'RAISE', r:`Két pár + ${outs} out full house-ra.`};
+  if (is2P && win >= RT - 5) return {cls:'raise', i:'🟢', l:'RAISE', r:`Két pár, ${win.toFixed(0)}% equity.`};
+  if (is2P && win >= CT) return {cls:'call', i:'🟡', l:'CALL', r:'Két pár – vigyázz a felső két párra.'};
+  if (win >= RT && isGD) return {cls:'raise', i:'🟢', l:'RAISE', r:`${win.toFixed(0)}% + ${outs} out – erős kombinált kéz.`};
+  if (win >= RT) return {cls:'raise', i:'🟢', l:'RAISE', r:`${win.toFixed(0)}% – erős pozíció.`};
+  if (isPair && isGD) return {cls:'call', i:'🟡', l:'CALL', r:`Pár + ${outs} out – javulási lehetőség.`};
+  if (isGD && win >= CT - 5) return {cls:'call', i:'🟡', l:'CALL', r:`${outs} out (${win.toFixed(0)}%) – megéri látni.`};
+  if (win >= CT) return {cls:'call', i:'🟡', l:'CALL', r:`${win.toFixed(0)}% – közepes pozíció.`};
+  if (isMD && win >= CT - 8) return {cls:'call', i:'🟡', l:'CALL', r:`${outs} out – kis tét esetén megfontolható.`};
+  if (isHC && !isGD) return {cls:'fold', i:'🔴', l:'FOLD', r:'Legerősebb lap, kevés out – nem éri meg.'};
+  return {cls:'fold', i:'🔴', l:'FOLD', r:`${win.toFixed(0)}% equity, ${outs} out – matematikailag nem támogatott.`};
+}
+
+/* ═══════════════════════ SLOT RENDERING ════════════════ */
+function renderSlot(el, c, isOpp) {
+  if (c) {
+    el.className = (isOpp ? 'ocs' : 'cs') + ' on' + (RED.has(c.suit) ? ' red' : '');
+    el.innerHTML = `<span class="cr">${c.rank}</span><span class="csu">${c.suit}</span>`;
+  } else {
+    el.className = isOpp ? 'ocs' : 'cs';
+    el.innerHTML = `<span class="plus">${isOpp ? '?' : '+'}</span>`;
+  }
+}
+
+function renderAllSlots() {
+  holeC.forEach((c,i) => renderSlot(document.getElementById('my'+i), c, false));
+  commC.forEach((c,i) => renderSlot(document.getElementById('cm'+i), c, false));
+}
+
+function renderOpponents() {
+  while (oppC.length < numOpp) oppC.push([null,null]);
+  oppC.length = numOpp;
+  document.getElementById('occ').textContent = numOpp;
+  const list = document.getElementById('opp-list');
+  list.innerHTML = '';
+  for (let i = 0; i < numOpp; i++) {
+    const row = document.createElement('div');
+    row.className = 'opp-row';
+    row.innerHTML = `<span class="opp-lbl">${i+1}. ellenfél</span>
+      <div class="opp-cards">
+        <div class="ocs" id="op${i}0" onclick="openPicker('op',${i}*10)"><span class="plus">?</span></div>
+        <div class="ocs" id="op${i}1" onclick="openPicker('op',${i}*10+1)"><span class="plus">?</span></div>
+      </div>
+      <button class="opp-clr" onclick="clearOpp(${i})">✕</button>`;
     list.appendChild(row);
+    oppC[i].forEach((c,j) => renderSlot(document.getElementById('op'+i+j), c, true));
   }
 }
 
-function renderDeck(){
-  const used=new Set(allUsed().map(cKey));
-  const grid=document.getElementById('dgrid');
-  grid.innerHTML='';
-  for(const suit of SUITS){
-    for(const rank of RANKS){
-      const key=suit+rank;
-      const div=document.createElement('div');
-      const cls=SUIT_C[suit];
-      div.className='dc'+(used.has(key)?' used':' '+cls);
-      div.textContent=rank==='10'?'T':rank;
-      div.title=rank+suit;
-      grid.appendChild(div);
+/* ═══════════════════════ DECK GRID ═════════════════════ */
+function renderDeckGrid() {
+  const curKeys = new Set(currentCards().map(cKey));
+  const grid    = document.getElementById('dgrid');
+  grid.innerHTML = '';
+  const suitCounts = {};
+  SUITS.forEach(s => suitCounts[s] = 0);
+
+  for (const suit of SUITS) {
+    for (const rank of RANKS) {
+      const k  = suit + rank;
+      const dc = document.createElement('div');
+      let state;
+      if (permSet.has(k))     { state = 'perm'; }
+      else if (curKeys.has(k)){ state = 'cur';  }
+      else { state = 'av'; suitCounts[suit]++; }
+      const sc = RED.has(suit) ? (suit==='♥'?'h':'d') : (suit==='♠'?'s':'c');
+      dc.className = 'dc ' + state + (state==='av' ? ' '+sc : '');
+      dc.textContent = rank === '10' ? 'T' : rank;
+      dc.title = suit+rank + (state==='perm' ? ' (korábbi kézből)' : state==='cur' ? ' (jelenlegi kéz)' : ' (elérhető)');
+      grid.appendChild(dc);
     }
   }
+  const si = document.getElementById('deck-suits-info');
+  si.innerHTML = SUITS.map(s => `<span>${s} ${suitCounts[s]}</span>`).join('');
 }
 
-/* ═══════════════════════════════════════════
-   DECK TOGGLE
-═══════════════════════════════════════════ */
-function toggleDeck(){
-  const wrap=document.getElementById('deck-grid-wrap');
-  const tog=document.getElementById('deck-toggle');
-  const open=wrap.classList.toggle('show');
-  tog.classList.toggle('open',open);
-  if(open) renderDeck();
+/* ═══════════════════════ HEADER ═════════════════════════ */
+function updateHeader() {
+  document.getElementById('deck-badge').textContent  = deckCount() + ' lap';
+  document.getElementById('phase-badge').textContent = getPhaseLabel();
 }
 
-/* ═══════════════════════════════════════════
-   PICKER MODAL
-═══════════════════════════════════════════ */
-function openP(type,idx){
-  pk.type=type; pk.idx=idx;
-  let existing=null;
-  if(type==='my') existing=myC[idx];
-  else if(type==='cm') existing=cmC[idx];
-  else { const oi=idx>>1,ci=idx&1; existing=(oppC[oi]||[])[ci]||null; }
-  pk.suit=existing?.suit||'♠';
-  renderSuits(); renderRanks();
-  document.getElementById('overlay').classList.add('show');
-}
+/* ═══════════════════════ ANALYSIS ══════════════════════ */
+function analyze() {
+  const hole = holeC.filter(Boolean);
+  const comm = commC.filter(Boolean);
+  const ra   = document.getElementById('results-area');
+  const vs   = document.getElementById('val-section');
 
-function closeP(){
-  document.getElementById('overlay').classList.remove('show');
-  pk.type=null; pk.idx=null;
-}
-
-function pSuit(s,i){
-  pk.suit=s; renderSuits(); renderRanks();
-}
-
-function renderSuits(){
-  SUITS.forEach((s,i)=>document.getElementById('st'+i).classList.toggle('on',s===pk.suit));
-}
-
-function renderRanks(){
-  const used=new Set(allUsed().map(cKey));
-  // Un-exclude the card currently in this slot so it can be re-picked
-  let cur=null;
-  if(pk.type==='my') cur=myC[pk.idx];
-  else if(pk.type==='cm') cur=cmC[pk.idx];
-  else { const oi=pk.idx>>1,ci=pk.idx&1; cur=(oppC[oi]||[])[ci]||null; }
-  if(cur) used.delete(cKey(cur));
-
-  const grid=document.getElementById('rg');
-  grid.innerHTML='';
-  for(const rank of RANKS){
-    const btn=document.createElement('button');
-    btn.className='rbtn'+(RED.has(pk.suit)?' red':'');
-    if(used.has(pk.suit+rank)) btn.classList.add('used');
-    btn.textContent=rank;
-    btn.onclick=()=>pickCard(rank);
-    grid.appendChild(btn);
-  }
-}
-
-function pickCard(rank){
-  const card={rank,suit:pk.suit};
-  if(pk.type==='my') myC[pk.idx]=card;
-  else if(pk.type==='cm') cmC[pk.idx]=card;
-  else { const oi=pk.idx>>1,ci=pk.idx&1; if(!oppC[oi])oppC[oi]=[null,null]; oppC[oi][ci]=card; }
-  closeP(); refresh();
-}
-
-function delCard(){
-  if(pk.type==='my') myC[pk.idx]=null;
-  else if(pk.type==='cm') cmC[pk.idx]=null;
-  else { const oi=pk.idx>>1,ci=pk.idx&1; if(oppC[oi])oppC[oi][ci]=null; }
-  closeP(); refresh();
-}
-
-/* ═══════════════════════════════════════════
-   OPPONENT COUNT
-═══════════════════════════════════════════ */
-function adjOpp(d){
-  const n=Math.max(1,Math.min(9,numO+d));
-  while(oppC.length<n) oppC.push([null,null]);
-  oppC=oppC.slice(0,n);
-  numO=n; refresh();
-}
-
-/* ═══════════════════════════════════════════
-   RESET
-═══════════════════════════════════════════ */
-function newDeal(){
-  myC=[null,null];
-  cmC=[null,null,null,null,null];
-  oppC=Array.from({length:numO},()=>[null,null]);
-  refresh();
-}
-
-function newDeck(){
-  myC=[null,null];
-  cmC=[null,null,null,null,null];
-  oppC=Array.from({length:numO},()=>[null,null]);
-  refresh();
-}
-
-/* ═══════════════════════════════════════════
-   RECOMMENDATION ENGINE
-═══════════════════════════════════════════ */
-function getRecommendation(handRank, winPct, outs, toCome, numPlayers){
-  // winPct: 0–100 float
-  // toCome: 0=river done, 1=turn, 2=flop/pre-flop
-  // Adjust thresholds upward with more players (more competition)
-  const pAdj = Math.max(0, (numPlayers - 2)) * 1.5; // +1.5% per extra player
-
-  // ── Helpers ──────────────────────────────
-  const RAISE_T = 62 + pAdj;  // win% needed to raise
-  const CALL_T  = 38 + pAdj;  // win% needed to call
-  const GOOD_DRAW = toCome >= 2 ? 10 : 7; // outs threshold for "good draw"
-
-  const isMonster  = handRank >= 7; // quads, straight flush, royal
-  const isStrong   = handRank >= 5; // flush+
-  const isStraight = handRank === 4;
-  const isTrips    = handRank === 3;
-  const isTwoPair  = handRank === 2;
-  const isPair     = handRank === 1;
-  const isHighCard = handRank === 0;
-  const isGoodDraw = outs >= GOOD_DRAW && toCome > 0;
-  const isMarginalDraw = outs >= 5 && toCome > 0;
-
-  // ── River (no more cards) ─────────────────
-  if(toCome === 0){
-    if(isMonster) return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Kimagasló kéz – nyomj maximálisan, nehéz verhetni.'};
-    if(isStrong)  return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Erős flush vagy jobb – magabiztosan lehet emelni.'};
-    if(isStraight && winPct >= CALL_T) return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Sor (Straight) – általában nyerő kéz a showdownnál.'};
-    if(isTrips && winPct >= RAISE_T)   return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Drill – erős kéz, érdemes értéket kinyerni.'};
-    if(winPct >= RAISE_T)  return{cls:'raise',icon:'🟢',label:'RAISE',reason:`${winPct.toFixed(0)}% nyerési esély – statisztikailag előnyös pozíció.`};
-    if(isTwoPair && winPct >= CALL_T)  return{cls:'call', icon:'🟡',label:'CALL', reason:'Két pár – közepes erős kéz, de rivereln óvatosan.'};
-    if(winPct >= CALL_T)   return{cls:'call', icon:'🟡',label:'CALL', reason:`${winPct.toFixed(0)}% nyerési esély – elfogadható pozíció a showdownhoz.`};
-    if(isPair && winPct < CALL_T)      return{cls:'fold', icon:'🔴',label:'FOLD', reason:'Gyenge pár, alacsony equity – ritkán nyerő a showdownnál.'};
-    return{cls:'fold',icon:'🔴',label:'FOLD',reason:`${winPct.toFixed(0)}% nyerési esély – nem éri meg belemenni.`};
-  }
-
-  // ── Flop / Turn (cards still to come) ────
-  if(isMonster)  return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Kimagasló kéz – védd és nyomj most, draw-ok ellen is.'};
-  if(isStrong)   return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Erős kész kéz (Flush+) – agresszív játék ajánlott.'};
-
-  if(isStraight){
-    if(winPct >= CALL_T) return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Sor (Straight) – erős kéz, de figyelj flush lehetőségre a boardon.'};
-    return{cls:'call',icon:'🟡',label:'CALL',reason:'Sor (Straight) – de sok ellenfél és flush-lehetőség csökkenti az értékét.'};
-  }
-
-  if(isTrips){
-    if(winPct >= CALL_T) return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Drill – erős kéz, jó eséllyel nyerő. Érdemes emelni.'};
-    return{cls:'call',icon:'🟡',label:'CALL',reason:'Drill – de sok ellenfél ellen érdemes óvatosan.'};
-  }
-
-  if(isTwoPair && isGoodDraw){
-    return{cls:'raise',icon:'🟢',label:'RAISE',reason:`Két pár + ${outs} out a full house-hoz – erős kombináció.`};
-  }
-  if(isTwoPair && winPct >= RAISE_T - 5){
-    return{cls:'raise',icon:'🟢',label:'RAISE',reason:`Két pár, ${winPct.toFixed(0)}% equity – nyomható állás.`};
-  }
-  if(isTwoPair && winPct >= CALL_T){
-    return{cls:'call',icon:'🟡',label:'CALL',reason:'Két pár – közepes erős kéz, de vigyázz a felső két párra.'};
-  }
-
-  // High equity draw or made hand combo
-  if(winPct >= RAISE_T && isGoodDraw){
-    return{cls:'raise',icon:'🟢',label:'RAISE',reason:`${winPct.toFixed(0)}% equity + ${outs} erős out – magas félegyenértékű kéz.`};
-  }
-  if(winPct >= RAISE_T){
-    return{cls:'raise',icon:'🟢',label:'RAISE',reason:`${winPct.toFixed(0)}% nyerési esély – statisztikailag erős pozíció.`};
-  }
-
-  if(isPair && isGoodDraw){
-    return{cls:'call',icon:'🟡',label:'CALL',reason:`Pár + ${outs} out a jobbhoz – van mit várni, de nem elég az emeléshez.`};
-  }
-  if(isGoodDraw && winPct >= CALL_T - 5){
-    return{cls:'call',icon:'🟡',label:'CALL',reason:`${outs} erős out (${winPct.toFixed(0)}% esély javulásra) – megéri látni a következő lapot.`};
-  }
-  if(winPct >= CALL_T){
-    return{cls:'call',icon:'🟡',label:'CALL',reason:`${winPct.toFixed(0)}% equity – közepes pozíció, megfontolt folytatás.`};
-  }
-  if(isMarginalDraw && winPct >= CALL_T - 8){
-    return{cls:'call',icon:'🟡',label:'CALL',reason:`${outs} out, de alacsony equity – csak kis tétnél éri meg.`};
-  }
-
-  // Fold territory
-  if(isHighCard && !isGoodDraw){
-    return{cls:'fold',icon:'🔴',label:'FOLD',reason:'Legerősebb lap, kevés out – a legtöbb esetben nem éri meg folytatni.'};
-  }
-  if(isPair && winPct < CALL_T && !isMarginalDraw){
-    return{cls:'fold',icon:'🔴',label:'FOLD',reason:'Gyenge pár, kevés javulási esély – risky folytatás.'};
-  }
-  return{cls:'fold',icon:'🔴',label:'FOLD',reason:`${winPct.toFixed(0)}% equity, ${outs} out – a matematika nem támogatja a folytatást.`};
-}
-
-/* ═══════════════════════════════════════════
-   ANALYSIS & UI UPDATE
-═══════════════════════════════════════════ */
-function analyze(){
-  const hole=myC.filter(Boolean);
-  const comm=cmC.filter(Boolean);
-  const used=allUsed();
-  const ra=document.getElementById('results-area');
-  const info=document.getElementById('info-bar');
-
-  // Phase badge
-  const phase=comm.length===0?'PRE-FLOP':comm.length<=3?'FLOP':comm.length===4?'TURN':'RIVER';
-  document.getElementById('phase-badge').textContent=phase;
-  document.getElementById('deck-badge').textContent=(52-used.length)+' lap';
-
-  // Not enough cards
-  if(hole.length<2){
-    ra.innerHTML='';
-    info.textContent='Add meg mindkét saját lapodat az elemzés megkezdéséhez.';
-    return;
-  }
-  if(comm.length===0){
-    ra.innerHTML=`<div class="hint-box">🂠 Várd a flopot – ${numO} ellenfél ellen.</div>`;
-    info.textContent=`${52-used.length} ismeretlen lap. ${numO} ellenfél.`;
-    return;
-  }
-  if(comm.length<3){
-    ra.innerHTML=`<div class="hint-box">Add meg a flop mind a 3 lapját (${comm.length}/3).</div>`;
-    info.textContent=`${52-used.length} ismeretlen lap. ${numO} ellenfél.`;
+  if (hole.length < 2) {
+    ra.innerHTML = '<div class="hint">Add meg a 2 saját lapot az elemzés indításához.</div>';
+    vs.style.display = 'none';
+    document.getElementById('val-dot').textContent = '·';
+    document.getElementById('val-dot').style.color = '';
+    document.getElementById('info').textContent = 'Add meg a lapokat az elemzéshez.';
     return;
   }
 
-  // ── Hand strength ──────────────────────
-  const best=bestFrom([...hole,...comm]);
-  let handHTML='';
-  if(best){
-    let sub='';
-    if(best.r===0) sub='Legmagasabb: '+RN[best.tb[0]];
-    else if(best.r===1) sub=RN[best.tb[0]]+'-ok';
-    else if(best.r===2) sub=RN[best.tb[0]]+' és '+RN[best.tb[1]];
-    handHTML=`
+  const allCards = [...hole, ...comm];
+  let hand;
+  if (allCards.length >= 5) {
+    hand = bestFrom(allCards);
+  } else if (allCards.length >= 3) {
+    hand = bestFrom(allCards);
+  } else {
+    // Pre-flop: only hole cards
+    hand = hole.length === 2 && hole[0].rank === hole[1].rank
+      ? {r:1, n:'Zseb pár', tb:[RV[hole[0].rank], RV[hole[0].rank]]}
+      : {r:0, n:'Két különböző lap', tb:[RV[hole[0].rank], hole[1]?RV[hole[1].rank]:0]};
+  }
+
+  const outsData = (hole.length === 2 && comm.length < 5 && comm.length >= 1) ? calcOuts(hole, comm) : null;
+  const toCome   = 5 - comm.length;
+
+  // Build initial UI
+  const sub = toCome > 0 ? `${toCome} közös lap hátra` : 'Végleges kéz (River)';
+  let outsHTML = '–', outsCls = 'vb';
+  if (outsData) {
+    const oc = outsData.outs;
+    outsCls  = oc >= 10 ? 'vg' : oc >= 5 ? 'va' : 'vr';
+    outsHTML = `${oc}<span style="font-size:.8rem;font-weight:400"> (${outsData.pct}%)</span>`;
+  } else if (toCome === 0) {
+    outsHTML = '–'; outsCls = 'vb';
+  } else if (comm.length === 0) {
+    outsHTML = '?'; outsCls = 'vb';
+  }
+
+  ra.innerHTML = `
     <div class="hand-box">
-      <div class="hand-lbl">LEGJOBB KEZEM</div>
-      <div class="hand-name">${best.n}</div>
-      ${sub?`<div class="hand-sub">${sub}</div>`:''}
-    </div>`;
-  }
-
-  // ── Outs ──────────────────────────────
-  const out=calcOuts(hole,comm);
-  let outsHTML='';
-  if(out&&out.toCome>0){
-    const oc=out.outs>=9?'vg':out.outs>=5?'va':'vr';
-    const pNum=parseFloat(out.pct);
-    const pc=pNum>=40?'vg':pNum>=20?'va':'vr';
-    const lbl=out.toCome>=2?'RIVERIG (2 LAP)':'RIVER ESÉLY';
-    outsHTML=`
-    <div class="stats-grid">
+      <div class="hand-lbl">Legjobb kéz</div>
+      <div class="hand-name">${hand ? hand.n : '–'}</div>
+      <div class="hand-sub">${sub}</div>
+    </div>
+    <div class="stats-row">
       <div class="stat-box">
-        <div class="sv ${oc}">${out.outs}</div>
-        <div class="sl">OUTAK SZÁMA</div>
-        <div style="font-size:.6rem;color:#3a3a5a;margin-top:2px;">${out.rem} lapból</div>
+        <div class="sv ${outsCls}">${outsHTML}</div>
+        <div class="sl">Outak (javulás esélye)</div>
       </div>
-      <div class="stat-box">
-        <div class="sv ${pc}">${out.pct}%</div>
-        <div class="sl">${lbl}</div>
-      </div>
-    </div>`;
-  } else if(out&&out.toCome===0){
-    outsHTML=`<div class="hint-box" style="padding:6px;color:#4a4a6a;font-size:.75rem;">River – a lapok le vannak osszva.</div>`;
-  }
-
-  // ── Win probability (MC) + Recommendation ──
-  const winHTML=`
-  <div class="win-box" id="win-box">
-    <div class="win-row">
-      <div>
-        <div class="win-title">NYERÉSI ESÉLY</div>
-        <div class="sv vb" style="margin-top:4px;" id="win-pct">
-          <span class="spin"></span>
-        </div>
-      </div>
-      <div style="flex:1;margin-left:10px;">
-        <div class="bar-wrap"><div class="bar g" id="win-bar" style="width:0%"></div></div>
-        <div class="win-detail" id="win-detail">
-          <span style="color:#3a3a5a;font-size:.65rem;">Monte Carlo számítás…</span>
-        </div>
+      <div class="stat-box" id="mc-stat">
+        <div class="sv vb"><span class="spinner"></span></div>
+        <div class="sl">Nyerési esély (MC)</div>
       </div>
     </div>
-    <div style="font-size:.6rem;color:#3a3a5a;text-align:right;" id="mc-meta">${numO} ellenfél · 3000 szimuláció</div>
-  </div>
-  <div class="rec-box" id="rec-box" style="display:none;"></div>`;
+    <div class="win-box" id="win-box">
+      <div class="win-title">Monte Carlo szimulálás…</div>
+      <div style="text-align:center;padding:10px 0"><span class="spinner"></span></div>
+    </div>
+    <div id="rec-area">
+      <div class="hint" style="padding:8px 0 4px">Számolás folyamatban…</div>
+    </div>`;
 
-  ra.innerHTML=handHTML+outsHTML+winHTML;
-  info.textContent=`${52-used.length} ismeretlen lap. ${numO} ellenfél.`;
+  clearTimeout(mcTimer);
+  mcTimer = setTimeout(() => {
+    const mc  = monteCarlo(hole, comm);
+    const win = mc ? mc.fin.win : null;
 
-  // Update deck grid if visible
-  if(document.getElementById('deck-grid-wrap').classList.contains('show')) renderDeck();
-
-  // Cache for MC callback
-  const _best=best;
-  const _out=out;
-  const _toCome=out?out.toCome:0;
-
-  // Async Monte Carlo
-  if(mcT) clearTimeout(mcT);
-  mcT=setTimeout(()=>{
-    const res=monteCarlo(hole,comm,3000);
-    const pctEl=document.getElementById('win-pct');
-    const barEl=document.getElementById('win-bar');
-    const detEl=document.getElementById('win-detail');
-    const recEl=document.getElementById('rec-box');
-    if(!pctEl||!barEl||!res) return;
-    const w=parseFloat(res.win);
-    const cls=w>=55?'vg':w>=35?'va':'vr';
-    const bCls=w>=55?'g':w>=35?'a':'r';
-    pctEl.className=`sv ${cls}`;
-    pctEl.textContent=res.win+'%';
-    barEl.className=`bar ${bCls}`;
-    barEl.style.width=Math.min(100,w)+'%';
-    detEl.innerHTML=`<span>Döntetlen: ${res.tie}%</span><span>Veszít: ${res.lose}%</span>`;
-
-    // ── Recommendation ──────────────────────
-    if(recEl && _best){
-      const outs=_out?_out.outs:0;
-      const rec=getRecommendation(_best.r, w, outs, _toCome, numO);
-      recEl.className=`rec-box ${rec.cls}`;
-      recEl.style.display='block';
-      recEl.innerHTML=`
-        <div class="rec-action ${rec.cls}">
-          <span class="rec-dot">${rec.icon}</span>${rec.label}
-        </div>
-        <div class="rec-reason">${rec.reason}</div>
-        <div style="font-size:.58rem;color:#3a3a5a;margin-top:6px;">⚠ Tájékoztató ajánlás – pot odds és tétméret nélkül.</div>`;
+    // Update MC stat box
+    const mcStat = document.getElementById('mc-stat');
+    if (mcStat && win !== null) {
+      const cls = win >= 60 ? 'vg' : win >= 35 ? 'va' : 'vr';
+      mcStat.innerHTML = `<div class="sv ${cls}">${win}<span style="font-size:.8rem;font-weight:400">%</span></div><div class="sl">Nyerési esély (MC)</div>`;
     }
+
+    // Win bars
+    const wb = document.getElementById('win-box');
+    if (wb && mc) {
+      const {win:w, tie:t, lose:l} = mc.fin;
+      const varNote = mc.r2
+        ? `<div class="mc-note">Futás 1: ${mc.r1.win}% &nbsp;·&nbsp; Futás 2: ${mc.r2.win}% &nbsp;·&nbsp; Eltérés: ±${mc.variance}%${mc.uncertain ? ' <span style="color:var(--warn)">⚠ bizonytalan</span>' : ''} &nbsp;·&nbsp; 3000 iteráció összesen</div>`
+        : '';
+      wb.innerHTML = `
+        <div class="win-title">Nyerési esély – Monte Carlo</div>
+        <div class="wbar-row">
+          <span class="wbar-lbl">Nyerés</span>
+          <div class="wbar-wrap"><div class="wbar g" style="width:${w}%"></div></div>
+          <span class="wbar-val g">${w}%</span>
+        </div>
+        <div class="wbar-row">
+          <span class="wbar-lbl">Döntetlen</span>
+          <div class="wbar-wrap"><div class="wbar a" style="width:${t}%"></div></div>
+          <span class="wbar-val a">${t}%</span>
+        </div>
+        <div class="wbar-row">
+          <span class="wbar-lbl">Veszítés</span>
+          <div class="wbar-wrap"><div class="wbar r" style="width:${l}%"></div></div>
+          <span class="wbar-val r">${l}%</span>
+        </div>
+        ${varNote}`;
+    }
+
+    // Recommendation
+    const recArea = document.getElementById('rec-area');
+    if (recArea && hand && win !== null) {
+      const outsN    = outsData ? outsData.outs : 0;
+      const toComeN  = outsData ? outsData.toCome : toCome;
+      const rec      = getRecommendation(hand.r, win, outsN, toComeN, numOpp + 1);
+      recArea.innerHTML = `
+        <div class="rec-box ${rec.cls}">
+          <div class="rec-top">
+            <span class="rec-icon">${rec.i}</span>
+            <span class="rec-label ${rec.cls}">${rec.l}</span>
+          </div>
+          <div class="rec-reason">${rec.r}</div>
+          <div class="rec-extra">${numOpp} ellenfél &nbsp;·&nbsp; ${comm.length} közös lap</div>
+        </div>`;
+    }
+
+    // Validation
+    const checks   = runValidation(hole, comm, mc, outsData, hand);
+    const okCount  = checks.filter(c => c.t === 'ok').length;
+    const warnCount= checks.filter(c => c.t === 'warn').length;
+    const errCount = checks.filter(c => c.t === 'err').length;
+
+    const vdot = document.getElementById('val-dot');
+    if (errCount > 0)       { vdot.textContent = '✗'; vdot.style.color = 'var(--err)'; }
+    else if (warnCount > 0) { vdot.textContent = '⚠'; vdot.style.color = 'var(--warn)'; }
+    else                    { vdot.textContent = '✓'; vdot.style.color = 'var(--acc)'; }
+
+    vs.style.display = 'block';
+    const vsum = document.getElementById('val-sum');
+    if (errCount > 0)       vsum.innerHTML = `<span style="color:var(--err)">${errCount} hiba</span>`;
+    else if (warnCount > 0) vsum.innerHTML = `<span style="color:var(--warn)">${warnCount} figyelmeztetés</span>`;
+    else                    vsum.innerHTML = `<span style="color:var(--acc)">${okCount} ellenőrzés OK</span>`;
+
+    const icons = {ok:'✓', warn:'⚠', err:'✗'};
+    const vi = document.getElementById('val-items');
+    vi.innerHTML = checks.map(c =>
+      `<div class="vitem ${c.t}">
+        <span class="vi-icon">${icons[c.t]}</span>
+        <span class="vi-txt">${c.m}</span>
+      </div>`
+    ).join('');
+    if (valOpen) vi.classList.add('show');
+
+    document.getElementById('info').textContent =
+      `Elemzés kész · ${deckCount()} lap elérhető · ${permSet.size > 0 ? permSet.size + ' archivált' : 'friss pakli'}`;
   }, 60);
 }
 
-/* ═══════════════════════════════════════════
-   FULL REFRESH
-═══════════════════════════════════════════ */
-function refresh(){
-  renderMyCards();
-  renderComm();
-  renderOpp();
-  if(document.getElementById('deck-grid-wrap').classList.contains('show')) renderDeck();
+/* ═══════════════════════ CARD PICKER ═══════════════════ */
+function openPicker(type, idx) {
+  picker = {type, idx: eval(String(idx)), suit:'♠'};
+  buildRankGrid();
+  document.querySelectorAll('.stab').forEach((t,i) => t.classList.toggle('on', i === 0));
+  document.getElementById('overlay').classList.add('show');
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closePicker();
+}
+
+function closePicker() {
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function setSuit(suit, tabIdx) {
+  picker.suit = suit;
+  document.querySelectorAll('.stab').forEach((t,i) => t.classList.toggle('on', i === tabIdx));
+  buildRankGrid();
+}
+
+function getPickerCurrentKey() {
+  const {type, idx} = picker;
+  let c = null;
+  if (type === 'my') c = holeC[idx];
+  else if (type === 'cm') c = commC[idx];
+  else if (type === 'op') { const oi = (idx/10)|0; const ci = idx%10; c = oppC[oi]?.[ci]; }
+  return cKey(c);
+}
+
+function buildRankGrid() {
+  const known  = allKnownSet();
+  const curKey = getPickerCurrentKey();
+  const isRed  = RED.has(picker.suit);
+  const grid   = document.getElementById('rank-grid');
+  grid.innerHTML = RANKS.map(r => {
+    const k = picker.suit + r;
+    const isPerm     = permSet.has(k);
+    const isCurUsed  = known.has(k) && k !== curKey;
+    const cls = 'rbtn' +
+      (isRed ? ' red' : '') +
+      (isPerm ? ' perm-used' : '') +
+      (!isPerm && isCurUsed ? ' used' : '');
+    return `<button class="${cls}" onclick="pickCard('${r}')">${r}</button>`;
+  }).join('');
+}
+
+function pickCard(rank) {
+  const card = {rank, suit: picker.suit};
+  const {type, idx} = picker;
+  if (type === 'my') holeC[idx] = card;
+  else if (type === 'cm') commC[idx] = card;
+  else if (type === 'op') { const oi = (idx/10)|0; const ci = idx%10; if(oppC[oi]) oppC[oi][ci] = card; }
+  closePicker();
+  refresh();
+}
+
+function deleteCard() {
+  const {type, idx} = picker;
+  if (type === 'my') holeC[idx] = null;
+  else if (type === 'cm') commC[idx] = null;
+  else if (type === 'op') { const oi = (idx/10)|0; const ci = idx%10; if(oppC[oi]) oppC[oi][ci] = null; }
+  closePicker();
+  refresh();
+}
+
+/* ═══════════════════════ CONTROLS ══════════════════════ */
+function adjOpp(d) {
+  numOpp = Math.max(1, Math.min(9, numOpp + d));
+  renderOpponents();
+  refresh();
+}
+
+function clearOpp(i) {
+  if (oppC[i]) oppC[i] = [null, null];
+  renderOpponents();
+  refresh();
+}
+
+function doNewHand() {
+  // Archive all current hand cards into permSet
+  currentCards().forEach(c => permSet.add(cKey(c)));
+  holeC = [null, null];
+  commC = [null, null, null, null, null];
+  oppC  = oppC.map(() => [null, null]);
+  refresh();
+}
+
+function doNewDeck() {
+  permSet.clear();
+  holeC = [null, null];
+  commC = [null, null, null, null, null];
+  oppC  = oppC.map(() => [null, null]);
+  refresh();
+}
+
+/* ═══════════════════════ TOGGLES ════════════════════════ */
+function toggleVal() {
+  valOpen = !valOpen;
+  document.getElementById('val-items').classList.toggle('show', valOpen);
+  document.getElementById('val-arrow').classList.toggle('open', valOpen);
+}
+
+function toggleDeck() {
+  deckOpen = !deckOpen;
+  document.getElementById('deck-body').classList.toggle('show', deckOpen);
+  document.getElementById('deck-arrow').classList.toggle('open', deckOpen);
+  if (deckOpen) renderDeckGrid();
+}
+
+/* ═══════════════════════ REFRESH ═══════════════════════ */
+function refresh() {
+  updateHeader();
+  renderAllSlots();
+  renderOpponents();
+  if (deckOpen) renderDeckGrid();
+  clearTimeout(mcTimer);
   analyze();
 }
 
-// Boot
-refresh();
-
-// Register service worker
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+/* ═══════════════════════ BOOT ══════════════════════════ */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
+renderOpponents();
+refresh();
 </script>
 </body>
 </html>

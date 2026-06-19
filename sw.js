@@ -1,4 +1,4 @@
-const CACHE = 'poker-v1';
+const CACHE = 'poker-v3';
 const ASSETS = [
   './index.html',
   './manifest.json',
