@@ -410,10 +410,13 @@ function calcOuts(hole, comm) {
   const toCome = 5 - comm.length;
   if (toCome <= 0) return {outs:0, pct:'—', toCome:0, rem:0};
   const deck = availDeck();
+  // Hagyományos outs: high card esetén csak r≥2 (két pár+) számít outnak,
+  // egyébként bármi ami javít a jelenlegi rankon
+  const minRank = curr.r === 0 ? 2 : curr.r + 1;
   let outs = 0;
   for (const card of deck) {
     const test = bestFrom([...all, card]);
-    if (test && test.r > curr.r) outs++;
+    if (test && test.r >= minRank) outs++;
   }
   const rem = deck.length;
   let pct;
