@@ -197,8 +197,8 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,system-ui,s
 <div class="sec">
   <div class="sec-t">Saját lapjaim</div>
   <div class="cards-row" style="margin-top:9px">
-    <div class="cs" id="my0" onclick="openPicker('my',0)"><span class="plus">+</span></div>
-    <div class="cs" id="my1" onclick="openPicker('my',1)"><span class="plus">+</span></div>
+    <div class="cs" id="my0" onclick="openPicker('my',0,0)"><span class="plus">+</span></div>
+    <div class="cs" id="my1" onclick="openPicker('my',1,0)"><span class="plus">+</span></div>
   </div>
 </div>
 
@@ -207,18 +207,18 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,system-ui,s
   <div class="comm-wrap" style="margin-top:9px">
     <div class="cg">
       <div class="cg-inner">
-        <div class="cs" id="cm0" onclick="openPicker('cm',0)"><span class="plus">+</span></div>
-        <div class="cs" id="cm1" onclick="openPicker('cm',1)"><span class="plus">+</span></div>
-        <div class="cs" id="cm2" onclick="openPicker('cm',2)"><span class="plus">+</span></div>
+        <div class="cs" id="cm0" onclick="openPicker('cm',0,0)"><span class="plus">+</span></div>
+        <div class="cs" id="cm1" onclick="openPicker('cm',1,0)"><span class="plus">+</span></div>
+        <div class="cs" id="cm2" onclick="openPicker('cm',2,0)"><span class="plus">+</span></div>
       </div>
       <span class="cg-lbl">Flop</span>
     </div>
     <div class="cg">
-      <div class="cs" id="cm3" onclick="openPicker('cm',3)"><span class="plus">+</span></div>
+      <div class="cs" id="cm3" onclick="openPicker('cm',3,0)"><span class="plus">+</span></div>
       <span class="cg-lbl">Turn</span>
     </div>
     <div class="cg">
-      <div class="cs" id="cm4" onclick="openPicker('cm',4)"><span class="plus">+</span></div>
+      <div class="cs" id="cm4" onclick="openPicker('cm',4,0)"><span class="plus">+</span></div>
       <span class="cg-lbl">River</span>
     </div>
   </div>
@@ -301,7 +301,7 @@ let holeC    = [null, null];
 let commC    = [null, null, null, null, null];
 let numOpp   = 2;
 let oppC     = [[null,null], [null,null]];
-let picker   = {type:null, idx:null, suit:'♠'};
+let picker   = {type:null, oi:null, ci:null, suit:'♠'};
 let mcTimer  = null;
 let valOpen  = false;
 let deckOpen = false;
@@ -563,7 +563,7 @@ function runValidation(hole, comm, mcData, outsData, handResult) {
 function getRecommendation(hr, win, outs, toCome, nP) {
   const pAdj = Math.max(0, nP - 2) * 1.5;
   const RT = 62 + pAdj, CT = 38 + pAdj;
-  const GD = toCome >= 2 ? 10 : 7;
+  const GD = toCome >= 2 ? 8 : 6;
   const isMon = hr >= 7, isFl = hr >= 5, isSt = hr === 4;
   const isTri = hr === 3, is2P = hr === 2, isPair = hr === 1, isHC = hr === 0;
   const isGD = outs >= GD && toCome > 0;
@@ -624,8 +624,8 @@ function renderOpponents() {
     row.className = 'opp-row';
     row.innerHTML = `<span class="opp-lbl">${i+1}. ellenfél</span>
       <div class="opp-cards">
-        <div class="ocs" id="op${i}0" onclick="openPicker('op',${i}*10)"><span class="plus">?</span></div>
-        <div class="ocs" id="op${i}1" onclick="openPicker('op',${i}*10+1)"><span class="plus">?</span></div>
+        <div class="ocs" id="op${i}0" onclick="openPicker('op',${i},0)"><span class="plus">?</span></div>
+        <div class="ocs" id="op${i}1" onclick="openPicker('op',${i},1)"><span class="plus">?</span></div>
       </div>
       <button class="opp-clr" onclick="clearOpp(${i})">✕</button>`;
     list.appendChild(row);
@@ -692,12 +692,21 @@ function analyze() {
   if (allCards.length >= 5) {
     hand = bestFrom(allCards);
   } else if (allCards.length >= 3) {
-    hand = bestFrom(allCards);
+    // 3-4 lap (töredékes board): nem értékelhető még, de ne hívjuk bestFrom-t
+    hand = {r:-1, n:'Hiányos board', tb:[]};
   } else {
     // Pre-flop: only hole cards
-    hand = hole.length === 2 && hole[0].rank === hole[1].rank
-      ? {r:1, n:'Zseb pár', tb:[RV[hole[0].rank], RV[hole[0].rank]]}
-      : {r:0, n:'Két különböző lap', tb:[RV[hole[0].rank], hole[1]?RV[hole[1].rank]:0]};
+    if (hole.length === 2 && hole[0].rank === hole[1].rank) {
+      hand = {r:1, n:'Zseb pár', tb:[RV[hole[0].rank], RV[hole[0].rank]]};
+    } else if (hole.length === 2) {
+      const suited = hole[0].suit === hole[1].suit;
+      const r0 = RV[hole[0].rank], r1 = RV[hole[1].rank];
+      const hi = Math.max(r0,r1), lo = Math.min(r0,r1);
+      const rankName = r => RANKS[r-2];
+      hand = {r:0, n: suited ? `Szín lap (${rankName(hi)}${rankName(lo)}s)` : `Offsuit (${rankName(hi)}${rankName(lo)}o)`, tb:[hi,lo]};
+    } else {
+      hand = {r:0, n:'Két különböző lap', tb:[RV[hole[0].rank],0]};
+    }
   }
 
   const outsData = (hole.length === 2 && comm.length < 5 && comm.length >= 1) ? calcOuts(hole, comm) : null;
@@ -828,8 +837,9 @@ function analyze() {
 }
 
 /* ═══════════════════════ CARD PICKER ═══════════════════ */
-function openPicker(type, idx) {
-  picker = {type, idx: eval(String(idx)), suit:'♠'};
+function openPicker(type, oi, ci) {
+  // oi = opponent index (or card index for 'my'/'cm'), ci = card index within opponent (0 or 1)
+  picker = {type, oi: oi|0, ci: (ci|0), suit:'♠'};
   buildRankGrid();
   document.querySelectorAll('.stab').forEach((t,i) => t.classList.toggle('on', i === 0));
   document.getElementById('overlay').classList.add('show');
@@ -850,11 +860,11 @@ function setSuit(suit, tabIdx) {
 }
 
 function getPickerCurrentKey() {
-  const {type, idx} = picker;
+  const {type, oi, ci} = picker;
   let c = null;
-  if (type === 'my') c = holeC[idx];
-  else if (type === 'cm') c = commC[idx];
-  else if (type === 'op') { const oi = (idx/10)|0; const ci = idx%10; c = oppC[oi]?.[ci]; }
+  if (type === 'my') c = holeC[oi];
+  else if (type === 'cm') c = commC[oi];
+  else if (type === 'op') c = oppC[oi]?.[ci];
   return cKey(c);
 }
 
@@ -877,19 +887,19 @@ function buildRankGrid() {
 
 function pickCard(rank) {
   const card = {rank, suit: picker.suit};
-  const {type, idx} = picker;
-  if (type === 'my') holeC[idx] = card;
-  else if (type === 'cm') commC[idx] = card;
-  else if (type === 'op') { const oi = (idx/10)|0; const ci = idx%10; if(oppC[oi]) oppC[oi][ci] = card; }
+  const {type, oi, ci} = picker;
+  if (type === 'my') holeC[oi] = card;
+  else if (type === 'cm') commC[oi] = card;
+  else if (type === 'op') { if(oppC[oi]) oppC[oi][ci] = card; }
   closePicker();
   refresh();
 }
 
 function deleteCard() {
-  const {type, idx} = picker;
-  if (type === 'my') holeC[idx] = null;
-  else if (type === 'cm') commC[idx] = null;
-  else if (type === 'op') { const oi = (idx/10)|0; const ci = idx%10; if(oppC[oi]) oppC[oi][ci] = null; }
+  const {type, oi, ci} = picker;
+  if (type === 'my') holeC[oi] = null;
+  else if (type === 'cm') commC[oi] = null;
+  else if (type === 'op') { if(oppC[oi]) oppC[oi][ci] = null; }
   closePicker();
   refresh();
 }
