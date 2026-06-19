@@ -636,16 +636,6 @@ function renderDeckGrid() {
   const grid    = document.getElementById('dgrid');
   grid.innerHTML = '';
 
-  // Header row: empty corner + rank labels
-  const corner = document.createElement('div');
-  grid.appendChild(corner);
-  for (const rank of RANKS) {
-    const hdr = document.createElement('div');
-    hdr.className = 'dg-hdr';
-    hdr.textContent = rank;
-    grid.appendChild(hdr);
-  }
-
   // 4 suit rows
   const SUIT_SC = {'♠':'s','♥':'h','♦':'d','♣':'c'};
   const SUIT_HU = {'♠':'Pikk','♥':'Kör','♦':'Káró','♣':'Treff'};
