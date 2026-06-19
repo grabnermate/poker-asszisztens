@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f0f13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Póker">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>♠ Póker Segéd</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f0f13;
+  --s1:#1a1a24;
+  --s2:#22222e;
+  --border:#2a2a3a;
+  --accent:#4ade80;
+  --warn:#f59e0b;
+  --danger:#ef4444;
+  --text:#eeeeee;
+  --muted:#666;
+  --card:#f5f0e8;
+  --red:#dc2626;
+}
+html,body{height:100%;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  font-size:14px;-webkit-tap-highlight-color:transparent;
+  min-height:100vh;
+}
+
+/* ── HEADER ─────────────────────────────── */
+#hdr{
+  position:sticky;top:0;z-index:50;
+  background:var(--s1);border-bottom:1px solid var(--border);
+  padding:9px 14px;display:flex;align-items:center;gap:8px;
+}
+#hdr h1{font-size:1.05rem;font-weight:700;flex:1;}
+.badge{
+  border-radius:20px;padding:4px 10px;
+  font-size:.68rem;font-weight:800;letter-spacing:.8px;
+}
+#deck-badge{background:var(--s2);border:1px solid var(--border);color:var(--accent);}
+#phase-badge{background:var(--accent);color:#000;}
+
+/* ── SECTIONS ────────────────────────────── */
+.sec{padding:11px 14px;border-bottom:1px solid var(--border);}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.sec-title{font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;}
+
+/* ── BUTTONS ─────────────────────────────── */
+.act-row{display:flex;gap:8px;padding:9px 14px;border-bottom:1px solid var(--border);}
+.btn{
+  flex:1;padding:10px 8px;border:none;border-radius:8px;
+  font-size:.8rem;font-weight:700;cursor:pointer;letter-spacing:.4px;
+  transition:opacity .12s;
+}
+.btn:active{opacity:.65;}
+.btn-sec{background:var(--s2);color:var(--text);border:1px solid var(--border);}
+.btn-danger{background:#3a1010;color:var(--danger);border:1px solid #5a1a1a;}
+
+/* ── CARD SLOTS ──────────────────────────── */
+.cards-row{display:flex;gap:7px;align-items:flex-end;}
+.cs{
+  width:54px;height:76px;
+  background:var(--s2);border:2px dashed var(--border);
+  border-radius:8px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  color:#3a3a50;transition:transform .1s;flex-shrink:0;
+  user-select:none;position:relative;
+}
+.cs:active{transform:scale(.92);}
+.cs.on{background:var(--card);border:2px solid transparent;box-shadow:0 2px 10px rgba(0,0,0,.5);}
+.cs.on .cr{font-size:1.1rem;font-weight:900;color:#111;line-height:1.1;}
+.cs.on .cs2{font-size:1.35rem;line-height:1.05;}
+.cs.on.red .cr,.cs.on.red .cs2{color:var(--red);}
+.cs .plus{font-size:1.4rem;color:#2a2a3a;}
+
+/* community layout */
+.comm-wrap{display:flex;gap:10px;align-items:flex-end;}
+.cg{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.cg-inner{display:flex;gap:7px;}
+.cg-lbl{font-size:.58rem;color:#3a3a5a;text-transform:uppercase;letter-spacing:1px;}
+
+/* ── OPPONENTS ───────────────────────────── */
+.opp-adj{display:flex;align-items:center;gap:9px;}
+.opp-adj button{
+  width:30px;height:30px;border-radius:50%;
+  border:1px solid var(--border);background:var(--s2);color:var(--text);
+  font-size:1.1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.opp-adj button:active{background:var(--border);}
+.opp-adj .occ{font-size:1rem;font-weight:700;min-width:20px;text-align:center;}
+#opp-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.opp-row{
+  display:flex;align-items:center;gap:8px;
+  background:var(--s2);border-radius:8px;padding:6px 10px;
+}
+.opp-lbl{font-size:.72rem;color:var(--muted);min-width:58px;}
+.opp-cards{display:flex;gap:5px;}
+.ocs{
+  width:42px;height:58px;background:#0f0f1a;border:1px dashed #2a2a40;
+  border-radius:6px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  color:#2a2a40;font-size:.7rem;flex-shrink:0;
+}
+.ocs:active{transform:scale(.9);}
+.ocs.on{background:var(--card);border:none;box-shadow:0 1px 5px rgba(0,0,0,.4);}
+.ocs.on .cr{font-size:.85rem;font-weight:900;color:#111;line-height:1.1;}
+.ocs.on .cs2{font-size:1rem;line-height:1.05;}
+.ocs.on.red .cr,.ocs.on.red .cs2{color:var(--red);}
+.opp-clr{background:none;border:none;color:#3a3a50;font-size:.9rem;cursor:pointer;padding:4px 8px;margin-left:auto;}
+.opp-clr:active{color:var(--danger);}
+
+/* ── RESULTS ─────────────────────────────── */
+#results-area{padding:12px 14px;}
+.hand-box{
+  background:var(--s1);border-radius:10px;border:1px solid var(--border);
+  padding:13px;margin-bottom:10px;text-align:center;
+}
+.hand-lbl{font-size:.58rem;color:var(--muted);letter-spacing:1.5px;margin-bottom:3px;}
+.hand-name{font-size:1.45rem;font-weight:800;color:#f0d060;}
+.hand-sub{font-size:.72rem;color:var(--muted);margin-top:3px;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.stat-box{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:10px;padding:11px 8px;text-align:center;
+}
+.sv{font-size:1.45rem;font-weight:800;}
+.sl{font-size:.58rem;color:var(--muted);letter-spacing:1px;margin-top:2px;}
+.vg{color:var(--accent);}
+.va{color:var(--warn);}
+.vr{color:var(--danger);}
+.vb{color:#60c0f0;}
+.win-box{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:10px;padding:13px;margin-bottom:10px;
+}
+.win-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.win-pct{font-size:1.6rem;font-weight:800;}
+.win-meta{flex:1;}
+.win-title{font-size:.6rem;color:var(--muted);letter-spacing:1.2px;}
+.win-sub{font-size:.65rem;color:#4a4a6a;margin-top:2px;}
+.bar-wrap{background:var(--s2);border-radius:4px;height:7px;overflow:hidden;}
+.bar{height:100%;border-radius:4px;transition:width .4s ease;}
+.bar.g{background:var(--accent);}
+.bar.a{background:var(--warn);}
+.bar.r{background:var(--danger);}
+.win-detail{display:flex;justify-content:space-between;font-size:.62rem;color:#4a4a6a;margin-top:5px;}
+
+/* ── RECOMMENDATION BOX ─────────────────── */
+.rec-box{
+  border-radius:12px;padding:14px 14px 12px;margin-bottom:10px;
+  border:2px solid transparent;
+}
+.rec-box.raise{background:#0d2a0d;border-color:#22c55e;}
+.rec-box.call {background:#2a220a;border-color:#f59e0b;}
+.rec-box.fold {background:#2a0d0d;border-color:#ef4444;}
+.rec-action{
+  font-size:1.5rem;font-weight:900;letter-spacing:1px;
+  display:flex;align-items:center;gap:8px;margin-bottom:6px;
+}
+.rec-action.raise{color:#4ade80;}
+.rec-action.call {color:#fbbf24;}
+.rec-action.fold {color:#f87171;}
+.rec-dot{font-size:1.2rem;}
+.rec-reason{font-size:.78rem;color:#aaa;line-height:1.45;}
+
+/* ── DECK TRACKER ────────────────────────── */
+#deck-sec{padding:10px 14px;border-bottom:1px solid var(--border);}
+#deck-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;padding:2px 0;
+}
+#deck-toggle span{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;}
+#deck-toggle .arrow{font-size:.7rem;color:var(--muted);transition:transform .2s;}
+#deck-toggle.open .arrow{transform:rotate(180deg);}
+#deck-grid-wrap{display:none;margin-top:9px;}
+#deck-grid-wrap.show{display:block;}
+.dgrid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;}
+.dc{
+  aspect-ratio:1;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.5rem;font-weight:700;background:#1e1e2a;
+}
+.dc.used{background:#111118;color:#252530;}
+.dc.s{color:#aaaacc;}
+.dc.h{color:#f55;}
+.dc.d{color:#f77;}
+.dc.c{color:#aaaacc;}
+
+/* ── INFO BAR ────────────────────────────── */
+#info-bar{
+  padding:8px 14px;font-size:.7rem;
+  color:#3a3a5a;text-align:center;
+  border-top:1px solid var(--border);
+}
+
+/* ── MODAL ───────────────────────────────── */
+#overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.88);z-index:200;
+}
+#overlay.show{display:flex;align-items:flex-end;justify-content:center;}
+.modal{
+  background:var(--s1);border-radius:18px 18px 0 0;
+  border-top:1px solid var(--border);
+  padding:16px 14px 32px;
+  width:100%;max-width:440px;
+  max-height:85vh;overflow-y:auto;
+}
+.modal-title{
+  font-size:.75rem;color:var(--muted);letter-spacing:1.5px;
+  text-align:center;text-transform:uppercase;margin-bottom:12px;
+}
+.suit-tabs{display:flex;gap:7px;margin-bottom:12px;}
+.stab{
+  flex:1;padding:11px 4px;
+  border:2px solid var(--border);border-radius:8px;
+  background:var(--s2);color:var(--text);
+  font-size:1.3rem;cursor:pointer;text-align:center;
+}
+.stab:active{transform:scale(.95);}
+.stab.on{border-color:#f0d060;background:#24240e;}
+.stab.red{color:var(--red);}
+.rg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px;}
+.rbtn{
+  padding:14px 4px;border:1px solid var(--border);border-radius:8px;
+  background:var(--s2);color:var(--text);
+  font-size:1rem;font-weight:700;cursor:pointer;text-align:center;
+}
+.rbtn:active{background:var(--border);}
+.rbtn.used{opacity:.18;pointer-events:none;}
+.rbtn.red{color:var(--red);}
+.modal-acts{display:flex;gap:8px;}
+.mdel{flex:1;padding:13px;background:#3a1010;border:1px solid #5a1a1a;color:var(--danger);border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer;}
+.mcan{flex:1;padding:13px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer;}
+.mdel:active,.mcan:active{opacity:.7;}
+
+/* ── SPINNER ─────────────────────────────── */
+.spin{
+  display:inline-block;width:13px;height:13px;
+  border:2px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;
+}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* ── MISC ────────────────────────────────── */
+.hint-box{padding:14px;text-align:center;color:#3a3a5a;font-size:.82rem;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="hdr">
+  <h1>♠ Póker Segéd</h1>
+  <span class="badge" id="deck-badge">52 lap</span>
+  <span class="badge" id="phase-badge">PRE-FLOP</span>
+</div>
+
+<!-- ACTION BUTTONS -->
+<div class="act-row">
+  <button class="btn btn-sec" onclick="newDeal()">↺ Új leosztás</button>
+  <button class="btn btn-danger" onclick="newDeck()">⊘ Új pakli</button>
+</div>
+
+<!-- MY CARDS -->
+<div class="sec">
+  <div class="sec-title">Saját lapjaim</div>
+  <div class="cards-row">
+    <div class="cs" id="my0" onclick="openP('my',0)"><span class="plus">+</span></div>
+    <div class="cs" id="my1" onclick="openP('my',1)"><span class="plus">+</span></div>
+  </div>
+</div>
+
+<!-- COMMUNITY CARDS -->
+<div class="sec">
+  <div class="sec-title">Közös lapok (Board)</div>
+  <div class="comm-wrap">
+    <div class="cg">
+      <div class="cg-inner">
+        <div class="cs" id="cm0" onclick="openP('cm',0)"><span class="plus">+</span></div>
+        <div class="cs" id="cm1" onclick="openP('cm',1)"><span class="plus">+</span></div>
+        <div class="cs" id="cm2" onclick="openP('cm',2)"><span class="plus">+</span></div>
+      </div>
+      <span class="cg-lbl">Flop</span>
+    </div>
+    <div class="cg">
+      <div class="cs" id="cm3" onclick="openP('cm',3)"><span class="plus">+</span></div>
+      <span class="cg-lbl">Turn</span>
+    </div>
+    <div class="cg">
+      <div class="cs" id="cm4" onclick="openP('cm',4)"><span class="plus">+</span></div>
+      <span class="cg-lbl">River</span>
+    </div>
+  </div>
+</div>
+
+<!-- OPPONENTS -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-title">Ellenfelek</div>
+    <div class="opp-adj">
+      <button onclick="adjOpp(-1)">−</button>
+      <span class="occ" id="occ">2</span>
+      <button onclick="adjOpp(1)">+</button>
+    </div>
+  </div>
+  <div id="opp-list"></div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-area"></div>
+
+<!-- DECK TRACKER -->
+<div id="deck-sec">
+  <div id="deck-toggle" onclick="toggleDeck()">
+    <span>Pakli állapota</span>
+    <span class="arrow">▼</span>
+  </div>
+  <div id="deck-grid-wrap">
+    <div class="dgrid" id="dgrid"></div>
+  </div>
+</div>
+
+<div id="info-bar">Add meg mindkét saját lapodat az elemzés megkezdéséhez.</div>
+
+<!-- CARD PICKER MODAL -->
+<div id="overlay">
+  <div class="modal">
+    <div class="modal-title">Válassz lapot</div>
+    <div class="suit-tabs">
+      <button class="stab on"  id="st0" onclick="pSuit('♠',0)">♠</button>
+      <button class="stab red" id="st1" onclick="pSuit('♥',1)">♥</button>
+      <button class="stab red" id="st2" onclick="pSuit('♦',2)">♦</button>
+      <button class="stab"     id="st3" onclick="pSuit('♣',3)">♣</button>
+    </div>
+    <div class="rg" id="rg"></div>
+    <div class="modal-acts">
+      <button class="mdel" onclick="delCard()">🗑 Törlés</button>
+      <button class="mcan" onclick="closeP()">Mégse</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const RANKS  = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const SUITS  = ['♠','♥','♦','♣'];
+const RED    = new Set(['♥','♦']);
+const SUIT_C = {'♠':'s','♥':'h','♦':'d','♣':'c'};
+const RV     = Object.fromEntries(RANKS.map((r,i)=>[r,i+2]));
+const RN     = {2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K',14:'A'};
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let myC  = [null,null];                           // hole cards
+let cmC  = [null,null,null,null,null];             // community
+let numO = 2;                                      // opponent count
+let oppC = [[null,null],[null,null]];              // opponent cards
+let pk   = {type:null,idx:null,suit:'♠'};         // picker state
+let mcT  = null;                                   // MC timer
+
+/* ═══════════════════════════════════════════
+   DECK HELPERS
+═══════════════════════════════════════════ */
+function cKey(c){ return c ? c.suit+c.rank : null; }
+
+function allUsed(){
+  return [...myC,...cmC,...oppC.flat()].filter(Boolean);
+}
+
+function getDeck(excl){
+  const ex = new Set(excl.map(cKey));
+  const d = [];
+  for(const suit of SUITS) for(const rank of RANKS)
+    if(!ex.has(suit+rank)) d.push({rank,suit});
+  return d;
+}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=(Math.random()*(i+1))|0;
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/* ═══════════════════════════════════════════
+   HAND EVALUATOR
+═══════════════════════════════════════════ */
+function eval5(h){
+  // h = 5 cards [{rank,suit}]
+  const vals = h.map(c=>RV[c.rank]).sort((a,b)=>b-a);
+  const suits = h.map(c=>c.suit);
+  const flush = suits.every(s=>s===suits[0]);
+
+  // straight
+  const uv=[...new Set(vals)].sort((a,b)=>b-a);
+  let str=false,sHi=0;
+  if(uv.length>=5){
+    for(let i=0;i<=uv.length-5;i++){
+      if(uv[i]-uv[i+4]===4 && new Set(uv.slice(i,i+5)).size===5){
+        str=true;sHi=uv[i];break;
+      }
+    }
+    if(!str&&uv.includes(14)&&[2,3,4,5].every(v=>uv.includes(v))){str=true;sHi=5;}
+  }
+
+  // counts
+  const cnt={};
+  vals.forEach(v=>cnt[v]=(cnt[v]||0)+1);
+  const g=Object.entries(cnt).map(([v,c])=>({v:+v,c})).sort((a,b)=>b.c-a.c||b.v-a.v);
+  const tb=[g[0]?.v||0,g[1]?.v||0,g[2]?.v||0,...vals];
+
+  if(flush&&str) return{r:8,n:sHi===14?'Royal Flush':'Straight Flush',tb:[sHi,...vals]};
+  if(g[0].c===4) return{r:7,n:'Négyes (Poker)',tb};
+  if(g[0].c===3&&g[1]?.c===2) return{r:6,n:'Full House',tb};
+  if(flush)      return{r:5,n:'Flush (Szín)',tb:vals};
+  if(str)        return{r:4,n:'Sor (Straight)',tb:[sHi,...vals]};
+  if(g[0].c===3) return{r:3,n:'Drill (Hármas)',tb};
+  if(g[0].c===2&&g[1]?.c===2) return{r:2,n:'Két pár',tb};
+  if(g[0].c===2) return{r:1,n:'Pár',tb};
+  return           {r:0,n:'Legerősebb lap',tb:vals};
+}
+
+function cmpH(a,b){
+  if(a.r!==b.r) return a.r-b.r;
+  for(let i=0;i<Math.max(a.tb.length,b.tb.length);i++){
+    const d=(a.tb[i]||0)-(b.tb[i]||0);
+    if(d) return d;
+  }
+  return 0;
+}
+
+function bestFrom(cards){
+  const n=cards.length;
+  if(n<5) return null;
+  if(n===5) return eval5(cards);
+  let best=null;
+  function pick(s,ch){
+    if(ch.length===5){
+      const h=eval5(ch);
+      if(!best||cmpH(h,best)>0) best=h;
+      return;
+    }
+    const need=5-ch.length;
+    if(n-s<need) return;
+    for(let i=s;i<n;i++) pick(i+1,[...ch,cards[i]]);
+  }
+  pick(0,[]);
+  return best;
+}
+
+/* ═══════════════════════════════════════════
+   OUTS CALCULATOR
+═══════════════════════════════════════════ */
+function calcOuts(hole,comm){
+  const all=[...hole,...comm];
+  const curr=bestFrom(all);
+  if(!curr) return null;
+  const toCome=5-comm.length;
+  if(toCome<=0) return{outs:0,pct:'—',toCome:0};
+
+  const knownOpp=oppC.flat().filter(Boolean);
+  const deck=getDeck([...all,...knownOpp]);
+  let outs=0;
+  for(const card of deck){
+    const test=bestFrom([...all,card]);
+    // Only count RANK improvements, not kicker improvements
+    if(test&&test.r>curr.r) outs++;
+  }
+  const rem=deck.length;
+  let pct;
+  if(toCome>=2){
+    // P(improve in at least one of next 2 draws)
+    const m1=(rem-outs)/rem;
+    const m2=rem>1?(rem-outs-1)/(rem-1):0;
+    pct=((1-m1*m2)*100).toFixed(1);
+  } else {
+    pct=(outs/rem*100).toFixed(1);
+  }
+  return{outs,pct,toCome,rem};
+}
+
+/* ═══════════════════════════════════════════
+   MONTE CARLO WIN PROBABILITY
+═══════════════════════════════════════════ */
+function monteCarlo(hole,comm,N=3000){
+  const knownOpp=oppC.flat().filter(Boolean);
+  const allKnown=[...hole,...comm,...knownOpp];
+  const deckBase=getDeck(allKnown);
+  const commNeed=5-comm.length;
+
+  // Per opponent: how many cards still to deal
+  const oppNeeds=oppC.map(oc=>2-oc.filter(Boolean).length);
+  const totalOppDeal=oppNeeds.reduce((s,v)=>s+v,0);
+
+  // Safety check
+  if(deckBase.length < commNeed+totalOppDeal) return null;
+
+  let wins=0,ties=0;
+  const deck=[...deckBase];
+
+  for(let i=0;i<N;i++){
+    shuffle(deck);
+    let idx=0;
+
+    // Fill community
+    const simComm=[...comm];
+    for(let j=0;j<commNeed;j++) simComm.push(deck[idx++]);
+
+    // Fill opponent holes
+    const simOpp=oppC.map((oc,oi)=>{
+      const filled=oc.filter(Boolean).slice();
+      const need=oppNeeds[oi];
+      for(let j=0;j<need;j++) filled.push(deck[idx++]);
+      return filled;
+    });
+
+    // Evaluate my hand
+    const myH=bestFrom([...hole,...simComm]);
+    if(!myH) continue;
+
+    // Compare vs all opponents
+    let iWin=true,isTie=false;
+    for(const opp of simOpp){
+      if(opp.length<2) continue;
+      const oH=bestFrom([...opp,...simComm]);
+      if(!oH) continue;
+      const c=cmpH(myH,oH);
+      if(c<0){iWin=false;break;}
+      if(c===0) isTie=true;
+    }
+    if(iWin){
+      if(isTie) ties++;
+      else wins++;
+    }
+  }
+  return{
+    win:(wins/N*100).toFixed(1),
+    tie:(ties/N*100).toFixed(1),
+    lose:((N-wins-ties)/N*100).toFixed(1),
+    N
+  };
+}
+
+/* ═══════════════════════════════════════════
+   RENDER HELPERS
+═══════════════════════════════════════════ */
+function renderSlot(el,card,small=false){
+  if(!card){
+    el.innerHTML=`<span class="plus">${small?'?':'+'}</span>`;
+    el.classList.remove('on','red');
+    return;
+  }
+  const isRed=RED.has(card.suit);
+  el.innerHTML=`<span class="cr">${card.rank}</span><span class="cs2">${card.suit}</span>`;
+  el.classList.add('on');
+  el.classList.toggle('red',isRed);
+}
+
+function renderMyCards(){
+  for(let i=0;i<2;i++) renderSlot(document.getElementById('my'+i),myC[i]);
+}
+
+function renderComm(){
+  for(let i=0;i<5;i++) renderSlot(document.getElementById('cm'+i),cmC[i]);
+}
+
+function renderOpp(){
+  const list=document.getElementById('opp-list');
+  list.innerHTML='';
+  document.getElementById('occ').textContent=numO;
+  for(let i=0;i<numO;i++){
+    const row=document.createElement('div');
+    row.className='opp-row';
+
+    // Label
+    const lbl=document.createElement('span');
+    lbl.className='opp-lbl';
+    lbl.textContent=(i+1)+'. ellenfél';
+    row.appendChild(lbl);
+
+    // Cards
+    const cw=document.createElement('div');
+    cw.className='opp-cards';
+    for(let j=0;j<2;j++){
+      const slot=document.createElement('div');
+      slot.className='ocs';
+      const card=(oppC[i]||[])[j]||null;
+      if(card){
+        slot.innerHTML=`<span class="cr">${card.rank}</span><span class="cs2">${card.suit}</span>`;
+        slot.classList.add('on');
+        if(RED.has(card.suit)) slot.classList.add('red');
+      } else {
+        slot.textContent='?';
+      }
+      const ii=i,jj=j;
+      slot.onclick=()=>openP('opp',ii*2+jj);
+      cw.appendChild(slot);
+    }
+    row.appendChild(cw);
+
+    // Clear btn
+    const clr=document.createElement('button');
+    clr.className='opp-clr';
+    clr.textContent='✕';
+    const ii=i;
+    clr.onclick=()=>{ oppC[ii]=[null,null]; refresh(); };
+    row.appendChild(clr);
+
+    list.appendChild(row);
+  }
+}
+
+function renderDeck(){
+  const used=new Set(allUsed().map(cKey));
+  const grid=document.getElementById('dgrid');
+  grid.innerHTML='';
+  for(const suit of SUITS){
+    for(const rank of RANKS){
+      const key=suit+rank;
+      const div=document.createElement('div');
+      const cls=SUIT_C[suit];
+      div.className='dc'+(used.has(key)?' used':' '+cls);
+      div.textContent=rank==='10'?'T':rank;
+      div.title=rank+suit;
+      grid.appendChild(div);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   DECK TOGGLE
+═══════════════════════════════════════════ */
+function toggleDeck(){
+  const wrap=document.getElementById('deck-grid-wrap');
+  const tog=document.getElementById('deck-toggle');
+  const open=wrap.classList.toggle('show');
+  tog.classList.toggle('open',open);
+  if(open) renderDeck();
+}
+
+/* ═══════════════════════════════════════════
+   PICKER MODAL
+═══════════════════════════════════════════ */
+function openP(type,idx){
+  pk.type=type; pk.idx=idx;
+  let existing=null;
+  if(type==='my') existing=myC[idx];
+  else if(type==='cm') existing=cmC[idx];
+  else { const oi=idx>>1,ci=idx&1; existing=(oppC[oi]||[])[ci]||null; }
+  pk.suit=existing?.suit||'♠';
+  renderSuits(); renderRanks();
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeP(){
+  document.getElementById('overlay').classList.remove('show');
+  pk.type=null; pk.idx=null;
+}
+
+function pSuit(s,i){
+  pk.suit=s; renderSuits(); renderRanks();
+}
+
+function renderSuits(){
+  SUITS.forEach((s,i)=>document.getElementById('st'+i).classList.toggle('on',s===pk.suit));
+}
+
+function renderRanks(){
+  const used=new Set(allUsed().map(cKey));
+  // Un-exclude the card currently in this slot so it can be re-picked
+  let cur=null;
+  if(pk.type==='my') cur=myC[pk.idx];
+  else if(pk.type==='cm') cur=cmC[pk.idx];
+  else { const oi=pk.idx>>1,ci=pk.idx&1; cur=(oppC[oi]||[])[ci]||null; }
+  if(cur) used.delete(cKey(cur));
+
+  const grid=document.getElementById('rg');
+  grid.innerHTML='';
+  for(const rank of RANKS){
+    const btn=document.createElement('button');
+    btn.className='rbtn'+(RED.has(pk.suit)?' red':'');
+    if(used.has(pk.suit+rank)) btn.classList.add('used');
+    btn.textContent=rank;
+    btn.onclick=()=>pickCard(rank);
+    grid.appendChild(btn);
+  }
+}
+
+function pickCard(rank){
+  const card={rank,suit:pk.suit};
+  if(pk.type==='my') myC[pk.idx]=card;
+  else if(pk.type==='cm') cmC[pk.idx]=card;
+  else { const oi=pk.idx>>1,ci=pk.idx&1; if(!oppC[oi])oppC[oi]=[null,null]; oppC[oi][ci]=card; }
+  closeP(); refresh();
+}
+
+function delCard(){
+  if(pk.type==='my') myC[pk.idx]=null;
+  else if(pk.type==='cm') cmC[pk.idx]=null;
+  else { const oi=pk.idx>>1,ci=pk.idx&1; if(oppC[oi])oppC[oi][ci]=null; }
+  closeP(); refresh();
+}
+
+/* ═══════════════════════════════════════════
+   OPPONENT COUNT
+═══════════════════════════════════════════ */
+function adjOpp(d){
+  const n=Math.max(1,Math.min(9,numO+d));
+  while(oppC.length<n) oppC.push([null,null]);
+  oppC=oppC.slice(0,n);
+  numO=n; refresh();
+}
+
+/* ═══════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════ */
+function newDeal(){
+  myC=[null,null];
+  cmC=[null,null,null,null,null];
+  oppC=Array.from({length:numO},()=>[null,null]);
+  refresh();
+}
+
+function newDeck(){
+  myC=[null,null];
+  cmC=[null,null,null,null,null];
+  oppC=Array.from({length:numO},()=>[null,null]);
+  refresh();
+}
+
+/* ═══════════════════════════════════════════
+   RECOMMENDATION ENGINE
+═══════════════════════════════════════════ */
+function getRecommendation(handRank, winPct, outs, toCome, numPlayers){
+  // winPct: 0–100 float
+  // toCome: 0=river done, 1=turn, 2=flop/pre-flop
+  // Adjust thresholds upward with more players (more competition)
+  const pAdj = Math.max(0, (numPlayers - 2)) * 1.5; // +1.5% per extra player
+
+  // ── Helpers ──────────────────────────────
+  const RAISE_T = 62 + pAdj;  // win% needed to raise
+  const CALL_T  = 38 + pAdj;  // win% needed to call
+  const GOOD_DRAW = toCome >= 2 ? 10 : 7; // outs threshold for "good draw"
+
+  const isMonster  = handRank >= 7; // quads, straight flush, royal
+  const isStrong   = handRank >= 5; // flush+
+  const isStraight = handRank === 4;
+  const isTrips    = handRank === 3;
+  const isTwoPair  = handRank === 2;
+  const isPair     = handRank === 1;
+  const isHighCard = handRank === 0;
+  const isGoodDraw = outs >= GOOD_DRAW && toCome > 0;
+  const isMarginalDraw = outs >= 5 && toCome > 0;
+
+  // ── River (no more cards) ─────────────────
+  if(toCome === 0){
+    if(isMonster) return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Kimagasló kéz – nyomj maximálisan, nehéz verhetni.'};
+    if(isStrong)  return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Erős flush vagy jobb – magabiztosan lehet emelni.'};
+    if(isStraight && winPct >= CALL_T) return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Sor (Straight) – általában nyerő kéz a showdownnál.'};
+    if(isTrips && winPct >= RAISE_T)   return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Drill – erős kéz, érdemes értéket kinyerni.'};
+    if(winPct >= RAISE_T)  return{cls:'raise',icon:'🟢',label:'RAISE',reason:`${winPct.toFixed(0)}% nyerési esély – statisztikailag előnyös pozíció.`};
+    if(isTwoPair && winPct >= CALL_T)  return{cls:'call', icon:'🟡',label:'CALL', reason:'Két pár – közepes erős kéz, de rivereln óvatosan.'};
+    if(winPct >= CALL_T)   return{cls:'call', icon:'🟡',label:'CALL', reason:`${winPct.toFixed(0)}% nyerési esély – elfogadható pozíció a showdownhoz.`};
+    if(isPair && winPct < CALL_T)      return{cls:'fold', icon:'🔴',label:'FOLD', reason:'Gyenge pár, alacsony equity – ritkán nyerő a showdownnál.'};
+    return{cls:'fold',icon:'🔴',label:'FOLD',reason:`${winPct.toFixed(0)}% nyerési esély – nem éri meg belemenni.`};
+  }
+
+  // ── Flop / Turn (cards still to come) ────
+  if(isMonster)  return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Kimagasló kéz – védd és nyomj most, draw-ok ellen is.'};
+  if(isStrong)   return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Erős kész kéz (Flush+) – agresszív játék ajánlott.'};
+
+  if(isStraight){
+    if(winPct >= CALL_T) return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Sor (Straight) – erős kéz, de figyelj flush lehetőségre a boardon.'};
+    return{cls:'call',icon:'🟡',label:'CALL',reason:'Sor (Straight) – de sok ellenfél és flush-lehetőség csökkenti az értékét.'};
+  }
+
+  if(isTrips){
+    if(winPct >= CALL_T) return{cls:'raise',icon:'🟢',label:'RAISE',reason:'Drill – erős kéz, jó eséllyel nyerő. Érdemes emelni.'};
+    return{cls:'call',icon:'🟡',label:'CALL',reason:'Drill – de sok ellenfél ellen érdemes óvatosan.'};
+  }
+
+  if(isTwoPair && isGoodDraw){
+    return{cls:'raise',icon:'🟢',label:'RAISE',reason:`Két pár + ${outs} out a full house-hoz – erős kombináció.`};
+  }
+  if(isTwoPair && winPct >= RAISE_T - 5){
+    return{cls:'raise',icon:'🟢',label:'RAISE',reason:`Két pár, ${winPct.toFixed(0)}% equity – nyomható állás.`};
+  }
+  if(isTwoPair && winPct >= CALL_T){
+    return{cls:'call',icon:'🟡',label:'CALL',reason:'Két pár – közepes erős kéz, de vigyázz a felső két párra.'};
+  }
+
+  // High equity draw or made hand combo
+  if(winPct >= RAISE_T && isGoodDraw){
+    return{cls:'raise',icon:'🟢',label:'RAISE',reason:`${winPct.toFixed(0)}% equity + ${outs} erős out – magas félegyenértékű kéz.`};
+  }
+  if(winPct >= RAISE_T){
+    return{cls:'raise',icon:'🟢',label:'RAISE',reason:`${winPct.toFixed(0)}% nyerési esély – statisztikailag erős pozíció.`};
+  }
+
+  if(isPair && isGoodDraw){
+    return{cls:'call',icon:'🟡',label:'CALL',reason:`Pár + ${outs} out a jobbhoz – van mit várni, de nem elég az emeléshez.`};
+  }
+  if(isGoodDraw && winPct >= CALL_T - 5){
+    return{cls:'call',icon:'🟡',label:'CALL',reason:`${outs} erős out (${winPct.toFixed(0)}% esély javulásra) – megéri látni a következő lapot.`};
+  }
+  if(winPct >= CALL_T){
+    return{cls:'call',icon:'🟡',label:'CALL',reason:`${winPct.toFixed(0)}% equity – közepes pozíció, megfontolt folytatás.`};
+  }
+  if(isMarginalDraw && winPct >= CALL_T - 8){
+    return{cls:'call',icon:'🟡',label:'CALL',reason:`${outs} out, de alacsony equity – csak kis tétnél éri meg.`};
+  }
+
+  // Fold territory
+  if(isHighCard && !isGoodDraw){
+    return{cls:'fold',icon:'🔴',label:'FOLD',reason:'Legerősebb lap, kevés out – a legtöbb esetben nem éri meg folytatni.'};
+  }
+  if(isPair && winPct < CALL_T && !isMarginalDraw){
+    return{cls:'fold',icon:'🔴',label:'FOLD',reason:'Gyenge pár, kevés javulási esély – risky folytatás.'};
+  }
+  return{cls:'fold',icon:'🔴',label:'FOLD',reason:`${winPct.toFixed(0)}% equity, ${outs} out – a matematika nem támogatja a folytatást.`};
+}
+
+/* ═══════════════════════════════════════════
+   ANALYSIS & UI UPDATE
+═══════════════════════════════════════════ */
+function analyze(){
+  const hole=myC.filter(Boolean);
+  const comm=cmC.filter(Boolean);
+  const used=allUsed();
+  const ra=document.getElementById('results-area');
+  const info=document.getElementById('info-bar');
+
+  // Phase badge
+  const phase=comm.length===0?'PRE-FLOP':comm.length<=3?'FLOP':comm.length===4?'TURN':'RIVER';
+  document.getElementById('phase-badge').textContent=phase;
+  document.getElementById('deck-badge').textContent=(52-used.length)+' lap';
+
+  // Not enough cards
+  if(hole.length<2){
+    ra.innerHTML='';
+    info.textContent='Add meg mindkét saját lapodat az elemzés megkezdéséhez.';
+    return;
+  }
+  if(comm.length===0){
+    ra.innerHTML=`<div class="hint-box">🂠 Várd a flopot – ${numO} ellenfél ellen.</div>`;
+    info.textContent=`${52-used.length} ismeretlen lap. ${numO} ellenfél.`;
+    return;
+  }
+  if(comm.length<3){
+    ra.innerHTML=`<div class="hint-box">Add meg a flop mind a 3 lapját (${comm.length}/3).</div>`;
+    info.textContent=`${52-used.length} ismeretlen lap. ${numO} ellenfél.`;
+    return;
+  }
+
+  // ── Hand strength ──────────────────────
+  const best=bestFrom([...hole,...comm]);
+  let handHTML='';
+  if(best){
+    let sub='';
+    if(best.r===0) sub='Legmagasabb: '+RN[best.tb[0]];
+    else if(best.r===1) sub=RN[best.tb[0]]+'-ok';
+    else if(best.r===2) sub=RN[best.tb[0]]+' és '+RN[best.tb[1]];
+    handHTML=`
+    <div class="hand-box">
+      <div class="hand-lbl">LEGJOBB KEZEM</div>
+      <div class="hand-name">${best.n}</div>
+      ${sub?`<div class="hand-sub">${sub}</div>`:''}
+    </div>`;
+  }
+
+  // ── Outs ──────────────────────────────
+  const out=calcOuts(hole,comm);
+  let outsHTML='';
+  if(out&&out.toCome>0){
+    const oc=out.outs>=9?'vg':out.outs>=5?'va':'vr';
+    const pNum=parseFloat(out.pct);
+    const pc=pNum>=40?'vg':pNum>=20?'va':'vr';
+    const lbl=out.toCome>=2?'RIVERIG (2 LAP)':'RIVER ESÉLY';
+    outsHTML=`
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="sv ${oc}">${out.outs}</div>
+        <div class="sl">OUTAK SZÁMA</div>
+        <div style="font-size:.6rem;color:#3a3a5a;margin-top:2px;">${out.rem} lapból</div>
+      </div>
+      <div class="stat-box">
+        <div class="sv ${pc}">${out.pct}%</div>
+        <div class="sl">${lbl}</div>
+      </div>
+    </div>`;
+  } else if(out&&out.toCome===0){
+    outsHTML=`<div class="hint-box" style="padding:6px;color:#4a4a6a;font-size:.75rem;">River – a lapok le vannak osszva.</div>`;
+  }
+
+  // ── Win probability (MC) + Recommendation ──
+  const winHTML=`
+  <div class="win-box" id="win-box">
+    <div class="win-row">
+      <div>
+        <div class="win-title">NYERÉSI ESÉLY</div>
+        <div class="sv vb" style="margin-top:4px;" id="win-pct">
+          <span class="spin"></span>
+        </div>
+      </div>
+      <div style="flex:1;margin-left:10px;">
+        <div class="bar-wrap"><div class="bar g" id="win-bar" style="width:0%"></div></div>
+        <div class="win-detail" id="win-detail">
+          <span style="color:#3a3a5a;font-size:.65rem;">Monte Carlo számítás…</span>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:.6rem;color:#3a3a5a;text-align:right;" id="mc-meta">${numO} ellenfél · 3000 szimuláció</div>
+  </div>
+  <div class="rec-box" id="rec-box" style="display:none;"></div>`;
+
+  ra.innerHTML=handHTML+outsHTML+winHTML;
+  info.textContent=`${52-used.length} ismeretlen lap. ${numO} ellenfél.`;
+
+  // Update deck grid if visible
+  if(document.getElementById('deck-grid-wrap').classList.contains('show')) renderDeck();
+
+  // Cache for MC callback
+  const _best=best;
+  const _out=out;
+  const _toCome=out?out.toCome:0;
+
+  // Async Monte Carlo
+  if(mcT) clearTimeout(mcT);
+  mcT=setTimeout(()=>{
+    const res=monteCarlo(hole,comm,3000);
+    const pctEl=document.getElementById('win-pct');
+    const barEl=document.getElementById('win-bar');
+    const detEl=document.getElementById('win-detail');
+    const recEl=document.getElementById('rec-box');
+    if(!pctEl||!barEl||!res) return;
+    const w=parseFloat(res.win);
+    const cls=w>=55?'vg':w>=35?'va':'vr';
+    const bCls=w>=55?'g':w>=35?'a':'r';
+    pctEl.className=`sv ${cls}`;
+    pctEl.textContent=res.win+'%';
+    barEl.className=`bar ${bCls}`;
+    barEl.style.width=Math.min(100,w)+'%';
+    detEl.innerHTML=`<span>Döntetlen: ${res.tie}%</span><span>Veszít: ${res.lose}%</span>`;
+
+    // ── Recommendation ──────────────────────
+    if(recEl && _best){
+      const outs=_out?_out.outs:0;
+      const rec=getRecommendation(_best.r, w, outs, _toCome, numO);
+      recEl.className=`rec-box ${rec.cls}`;
+      recEl.style.display='block';
+      recEl.innerHTML=`
+        <div class="rec-action ${rec.cls}">
+          <span class="rec-dot">${rec.icon}</span>${rec.label}
+        </div>
+        <div class="rec-reason">${rec.reason}</div>
+        <div style="font-size:.58rem;color:#3a3a5a;margin-top:6px;">⚠ Tájékoztató ajánlás – pot odds és tétméret nélkül.</div>`;
+    }
+  }, 60);
+}
+
+/* ═══════════════════════════════════════════
+   FULL REFRESH
+═══════════════════════════════════════════ */
+function refresh(){
+  renderMyCards();
+  renderComm();
+  renderOpp();
+  if(document.getElementById('deck-grid-wrap').classList.contains('show')) renderDeck();
+  analyze();
+}
+
+// Boot
+refresh();
+
+// Register service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
